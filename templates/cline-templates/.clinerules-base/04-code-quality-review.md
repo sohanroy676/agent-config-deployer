@@ -12,6 +12,7 @@ Before committing any change, re-read the diff acting as a strict code reviewer 
 Fix anything flagged before proceeding to commit. If unsure whether something is an issue, err on the side of fixing it.
 
 ## General coding style
+
 - Make minimal, targeted edits — do not rewrite entire files unless the task genuinely requires it.
 - Do not "helpfully" refactor unrelated code while fixing a specific bug; stay scoped to the task.
 - Prefer clear, boring code over clever one-liners.

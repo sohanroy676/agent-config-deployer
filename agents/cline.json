@@ -1,0 +1,30 @@
+{
+    "name": "Cline",
+    "version": "1.0.0",
+    "base_template_path": "templates/cline-templates",
+    "structure": {
+        "base_files": {
+            ".clinerules-base/01-security.md": ".clinerules/01-security.md",
+            ".clinerules-base/02-commit-style.md": ".clinerules/02-commit-style.md",
+            ".clinerules-base/03-testing.md": ".clinerules/03-testing.md",
+            ".clinerules-base/04-code-quality-review.md": ".clinerules/04-code-quality-review.md",
+            ".clinerules-base/05-git-workflow.md": ".clinerules/05-git-workflow.md",
+            ".clinerules-base/06-session-efficiency.md": ".clinerules/06-session-efficiency.md",
+            "workflows/commit.md": ".clinerules/workflows/commit.md",
+            "workflows/debug.md": ".clinerules/workflows/debug.md",
+            "workflows/new-feature.md": ".clinerules/workflows/new-feature.md",
+            "memory-bank-template/activeContext.md": "memory-bank/activeContext.md",
+            "memory-bank-template/progress.md": "memory-bank/progress.md",
+            "memory-bank-template/projectBrief.md": "memory-bank/projectBrief.md",
+            "memory-bank-template/systemPatterns.md": "memory-bank/systemPatterns.md",
+            ".clineignore": ".clineignore",
+            ".gitignore": ".gitignore"
+        },
+        "project_specific_files": {
+            "AGENTS.md": "AGENTS.md",
+            "tech-stack.md": ".clinerules/tech-stack.md",
+            "architecture.md": ".clinerules/architecture.md",
+            "projectBrief.md": "memory-bank/projectBrief.md"
+        }
+    }
+}
