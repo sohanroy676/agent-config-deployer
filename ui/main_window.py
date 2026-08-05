@@ -31,7 +31,9 @@ class MainWindow(ctk.CTk):
         self.geometry(WINDOW_SIZE)
 
         self.agents = agent_loader.list_agents()
-        self.state: dict = {}
+        # NOTE: must NOT be named `state` — that shadows Tk's `state()` method
+        # and breaks CustomTkinter's internal window state handling.
+        self.wizard_state: dict = {}
         self.current_step = None
 
         self._show_source_step()
@@ -47,7 +49,7 @@ class MainWindow(ctk.CTk):
         self.current_step.pack(fill="both", expand=True)
 
     def _on_source(self, data: dict):
-        self.state.update(data)
+        self.wizard_state.update(data)
         self._show_agent_step()
 
     def _show_agent_step(self):
@@ -56,12 +58,12 @@ class MainWindow(ctk.CTk):
         self.current_step.pack(fill="both", expand=True)
 
     def _on_agent(self, data: dict):
-        self.state.update(data)
+        self.wizard_state.update(data)
         self._show_content_step()
 
     def _show_content_step(self):
         self._clear()
-        agent = agent_loader.get_agent(self.state["agent"])
+        agent = agent_loader.get_agent(self.wizard_state["agent"])
         project_files = list(
             agent.get("structure", {}).get("project_specific_files", {}).keys()
         )
@@ -71,7 +73,7 @@ class MainWindow(ctk.CTk):
         self.current_step.pack(fill="both", expand=True)
 
     def _on_content(self, data: dict):
-        self.state.update(data)
+        self.wizard_state.update(data)
         self._show_conflict_step()
 
     def _show_conflict_step(self):
@@ -90,26 +92,26 @@ class MainWindow(ctk.CTk):
                 pady=10
             )
             return
-        self.state["project_dir"] = project_dir
-        self.state["report"] = report
+        self.wizard_state["project_dir"] = project_dir
+        self.wizard_state["report"] = report
         self.current_step = ConflictStep(self, report=report, on_next=self._on_conflict)
         self.current_step.pack(fill="both", expand=True)
 
     def _on_conflict(self, data: dict):
-        self.state.update(data)
+        self.wizard_state.update(data)
         self._run_deploy()
 
     def _run_deploy(self):
         self._clear()
         try:
-            project_dir = self.state["project_dir"]
-            report = self.state["report"]
-            agent = agent_loader.get_agent(self.state["agent"])
+            project_dir = self.wizard_state["project_dir"]
+            report = self.wizard_state["report"]
+            agent = agent_loader.get_agent(self.wizard_state["agent"])
             base_template_path = Path(agent.get("base_template_path", ""))
 
             written = deploy_base_files(agent, base_template_path, project_dir, report)
             written += deploy_project_specific_files(
-                agent, project_dir, self.state.get("content_map", {}), report
+                agent, project_dir, self.wizard_state.get("content_map", {}), report
             )
             skipped = [
                 c.path
@@ -130,15 +132,15 @@ class MainWindow(ctk.CTk):
 
     def _resolve_project_dir(self) -> Path:
         """Clone the repo if a URL is given, else use the folder path directly."""
-        folder = Path(self.state["folder_path"])
-        repo_url = self.state.get("repo_url", "")
+        folder = Path(self.wizard_state["folder_path"])
+        repo_url = self.wizard_state.get("repo_url", "")
         if repo_url:
             return git_handler.clone_repo(repo_url, folder)
         return folder
 
     def _planned_targets(self, project_dir: Path) -> list[Path]:
         """Compute all absolute target paths the deployer would write."""
-        agent = agent_loader.get_agent(self.state["agent"])
+        agent = agent_loader.get_agent(self.wizard_state["agent"])
         structure = agent.get("structure", {})
         targets = []
         for dst_rel in structure.get("base_files", {}).values():
