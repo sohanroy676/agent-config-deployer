@@ -14,7 +14,7 @@ from core.file_deployer import (
 from ui.wizard_steps import (
     AgentStep,
     ConflictStep,
-    ContentStep,
+    ContentPageController,
     PromptStep,
     SourceStep,
     SummaryStep,
@@ -85,11 +85,15 @@ class MainWindow(ctk.CTk):
     def _show_content_step(self):
         self._clear()
         agent = agent_loader.get_agent(self.wizard_state["agent"])
-        project_files = list(
-            agent.get("structure", {}).get("project_specific_files", {}).keys()
-        )
-        self.current_step = ContentStep(
-            self, project_files=project_files, on_next=self._on_content
+        structure = agent.get("structure", {})
+        project_files = list(structure.get("project_specific_files", {}).keys())
+        descriptions = structure.get("file_descriptions", {})
+        self.current_step = ContentPageController(
+            self,
+            project_files=project_files,
+            descriptions=descriptions,
+            on_next=self._on_content,
+            on_back=self._show_prompt_step,
         )
         self.current_step.pack(fill="both", expand=True)
 

@@ -132,75 +132,123 @@ class PromptStep(ctk.CTkFrame):
         self.on_next({})
 
 
-class ContentStep(ctk.CTkFrame):
-    """Step 4: provide project-specific file content (paste or file picker)."""
+class ContentPageState:
+    """Pure navigation/save logic for the per-file content pages.
 
-    def __init__(self, master, project_files, on_next):
+    Kept separate from the widget so it can be tested without a Tk root.
+    """
+
+    def __init__(self, project_files, descriptions=None):
+        self.project_files = list(project_files)
+        self.descriptions = descriptions or {}
+        self.content_map: dict[str, str] = {}
+        self.index = 0
+
+    @property
+    def current_filename(self) -> str:
+        return self.project_files[self.index]
+
+    @property
+    def current_description(self) -> str:
+        return self.descriptions.get(self.current_filename, "")
+
+    @property
+    def is_first(self) -> bool:
+        return self.index == 0
+
+    @property
+    def is_last(self) -> bool:
+        return self.index == len(self.project_files) - 1
+
+    def save_current(self, text: str) -> None:
+        """Persist the current page's content."""
+        self.content_map[self.current_filename] = text
+
+    def go_next(self) -> bool:
+        """Advance to the next page. Returns True if moved, False if already on last."""
+        if self.is_last:
+            return False
+        self.index += 1
+        return True
+
+    def go_back(self) -> bool:
+        """Go to the previous page. Returns True if moved, False if already on first."""
+        if self.is_first:
+            return False
+        self.index -= 1
+        return True
+
+
+class ContentPageController(ctk.CTkFrame):
+    """Step 4: one page per project-specific file, auto-saving on navigation.
+
+    Each page shows the step heading, the filename as a second heading, and a
+    one-line description. Content is saved automatically when the user moves
+    between pages — there is no explicit Save button.
+    """
+
+    def __init__(self, master, project_files, descriptions, on_next, on_back):
         super().__init__(master)
         self.on_next = on_next
-        self.project_files = (
-            project_files  # list of keys, e.g. ["AGENTS.md", "tech-stack.md", ...]
-        )
-        self.content_map: dict[str, str] = {}
+        self.on_back = on_back
+        self.state = ContentPageState(project_files, descriptions)
 
-        ctk.CTkLabel(
+        self.heading_label = ctk.CTkLabel(
             self,
             text="Step 4: Project-Specific Content",
             font=ctk.CTkFont(size=18, weight="bold"),
-        ).pack(pady=(20, 10))
-
-        ctk.CTkLabel(
-            self, text="Select a file to provide content for, then paste or load it:"
-        ).pack(anchor="w", padx=20)
-
-        self.file_var = tk.StringVar(value=project_files[0] if project_files else "")
-        self.file_menu = ctk.CTkOptionMenu(
-            self,
-            values=project_files,
-            variable=self.file_var,
-            command=self._on_file_selected,
         )
-        self.file_menu.pack(fill="x", padx=20, pady=(8, 4))
+        self.heading_label.pack(pady=(20, 10))
 
-        self.textbox = ctk.CTkTextbox(self, height=200)
+        self.filename_label = ctk.CTkLabel(
+            self, text="", font=ctk.CTkFont(size=15, weight="bold")
+        )
+        self.filename_label.pack(anchor="w", padx=20)
+
+        self.desc_label = ctk.CTkLabel(self, text="", wraplength=640, justify="left")
+        self.desc_label.pack(anchor="w", padx=20, pady=(2, 8))
+
+        self.textbox = ctk.CTkTextbox(self, height=220)
         self.textbox.pack(fill="both", expand=True, padx=20, pady=(4, 8))
 
         btn_row = ctk.CTkFrame(self, fg_color="transparent")
         btn_row.pack(fill="x", padx=20, pady=(0, 8))
-        ctk.CTkButton(btn_row, text="Load from file...", command=self._load_file).pack(
-            side="left"
-        )
-        ctk.CTkButton(
-            btn_row, text="Save this file's content", command=self._save_current
-        ).pack(side="left", padx=(8, 0))
+        self.back_btn = ctk.CTkButton(btn_row, text="Back", command=self._go_back)
+        self.back_btn.pack(side="left")
+        self.next_btn = ctk.CTkButton(btn_row, text="Next", command=self._go_next)
+        self.next_btn.pack(side="right", padx=(8, 0))
 
-        ctk.CTkButton(self, text="Next", command=self._next).pack(pady=20)
+        self._show_current()
 
-    def _on_file_selected(self, _key):
+    def _show_current(self):
+        """Render the page for the current file, loading any saved content."""
+        filename = self.state.current_filename
+        self.filename_label.configure(text=filename)
+        self.desc_label.configure(text=self.state.current_description)
         self.textbox.delete("1.0", "end")
-        self.textbox.insert("1.0", self.content_map.get(self.file_var.get(), ""))
-
-    def _load_file(self):
-        path = filedialog.askopenfilename(
-            filetypes=[("Markdown files", "*.md"), ("All files", "*.*")]
+        self.textbox.insert("1.0", self.state.content_map.get(filename, ""))
+        self.back_btn.configure(
+            text="Back" if not self.state.is_first else "Back to Prompt"
         )
-        if not path:
-            return
-        try:
-            content = Path(path).read_text(encoding="utf-8")
-        except OSError as exc:
-            messagebox.showerror("Read error", str(exc))
-            return
-        self.content_map[self.file_var.get()] = content
-        self.textbox.delete("1.0", "end")
-        self.textbox.insert("1.0", content)
+        self.next_btn.configure(text="Next" if not self.state.is_last else "Finish")
 
     def _save_current(self):
-        self.content_map[self.file_var.get()] = self.textbox.get("1.0", "end-1c")
+        """Persist the current textbox content before navigating away."""
+        self.state.save_current(self.textbox.get("1.0", "end-1c"))
 
-    def _next(self):
+    def _go_back(self):
         self._save_current()
-        self.on_next({"content_map": self.content_map})
+        if not self.state.go_back():
+            self.on_back()
+        else:
+            self._show_current()
+
+    def _go_next(self):
+        self._save_current()
+        if not self.state.go_next():
+            self.on_next({"content_map": self.state.content_map})
+        else:
+            self._show_current()
 
 
 class ConflictStep(ctk.CTkFrame):

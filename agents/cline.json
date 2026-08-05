@@ -25,6 +25,12 @@
             "tech-stack.md": ".clinerules/tech-stack.md",
             "architecture.md": ".clinerules/architecture.md",
             "projectBrief.md": "memory-bank/projectBrief.md"
+        },
+        "file_descriptions": {
+            "AGENTS.md": "Short cross-tool summary of the project for AI agents.",
+            "tech-stack.md": "Languages, frameworks, test/lint/build commands for this project.",
+            "architecture.md": "Folder structure, data flow, and key module responsibilities.",
+            "projectBrief.md": "What the project is, its core goal, and what's out of scope."
         }
     }
 }
