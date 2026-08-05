@@ -39,3 +39,22 @@ def get_agent(agent_name: str) -> dict:
         if agent["name"].lower() == agent_name.lower():
             return agent
     raise AgentConfigError(f"No agent named '{agent_name}' found")
+
+
+def load_prompt(agent_config: dict) -> str:
+    """Return the content of the agent's prompt.md template file.
+
+    The prompt lives at <base_template_path>/prompt.md and is shown to the
+    user so they can copy it into an AI chat to generate project-specific
+    file contents.
+    """
+    base_template_path = Path(agent_config.get("base_template_path", ""))
+    prompt_path = base_template_path / "prompt.md"
+    if not prompt_path.exists():
+        raise AgentConfigError(f"Prompt file not found: {prompt_path}")
+    try:
+        return prompt_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise AgentConfigError(
+            f"Could not read prompt file {prompt_path}: {exc}"
+        ) from exc

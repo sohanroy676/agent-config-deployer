@@ -15,6 +15,7 @@ from ui.wizard_steps import (
     AgentStep,
     ConflictStep,
     ContentStep,
+    PromptStep,
     SourceStep,
     SummaryStep,
 )
@@ -58,6 +59,26 @@ class MainWindow(ctk.CTk):
         self.current_step.pack(fill="both", expand=True)
 
     def _on_agent(self, data: dict):
+        self.wizard_state.update(data)
+        self._show_prompt_step()
+
+    def _show_prompt_step(self):
+        self._clear()
+        try:
+            agent = agent_loader.get_agent(self.wizard_state["agent"])
+            prompt_text = agent_loader.load_prompt(agent)
+        except agent_loader.AgentConfigError as exc:
+            ctk.CTkLabel(self, text=f"Error: {exc}").pack(pady=20)
+            ctk.CTkButton(self, text="Back", command=self._show_agent_step).pack(
+                pady=10
+            )
+            return
+        self.current_step = PromptStep(
+            self, prompt_text=prompt_text, on_next=self._on_prompt
+        )
+        self.current_step.pack(fill="both", expand=True)
+
+    def _on_prompt(self, data: dict):
         self.wizard_state.update(data)
         self._show_content_step()
 

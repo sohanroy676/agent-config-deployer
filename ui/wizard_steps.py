@@ -84,8 +84,56 @@ class AgentStep(ctk.CTkFrame):
         self.on_next({"agent": self.agent_var.get()})
 
 
+class PromptStep(ctk.CTkFrame):
+    """Step 3: show the agent's prompt.md so the user can copy it into an AI chat."""
+
+    def __init__(self, master, prompt_text: str, on_next):
+        super().__init__(master)
+        self.on_next = on_next
+        self.prompt_text = prompt_text
+
+        ctk.CTkLabel(
+            self,
+            text="Step 3: Generate Project-Specific Content",
+            font=ctk.CTkFont(size=18, weight="bold"),
+        ).pack(pady=(20, 10))
+
+        ctk.CTkLabel(
+            self,
+            text=(
+                "Copy the prompt below and paste it into Claude (or your AI chat) "
+                "to generate the project-specific files. Then paste the results "
+                "into the next step."
+            ),
+            wraplength=640,
+            justify="left",
+        ).pack(anchor="w", padx=20, pady=(0, 8))
+
+        self.textbox = ctk.CTkTextbox(self, height=280)
+        self.textbox.pack(fill="both", expand=True, padx=20, pady=(4, 8))
+        self.textbox.insert("1.0", prompt_text)
+        self.textbox.configure(state="disabled")  # read-only, but text stays selectable
+
+        btn_row = ctk.CTkFrame(self, fg_color="transparent")
+        btn_row.pack(fill="x", padx=20, pady=(0, 8))
+        ctk.CTkButton(btn_row, text="Copy Prompt", command=self._copy_prompt).pack(
+            side="left"
+        )
+        ctk.CTkButton(btn_row, text="Next", command=self._next).pack(
+            side="right", padx=(8, 0)
+        )
+
+    def _copy_prompt(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.prompt_text)
+        self.update()  # keep clipboard data after the app closes
+
+    def _next(self):
+        self.on_next({})
+
+
 class ContentStep(ctk.CTkFrame):
-    """Step 3: provide project-specific file content (paste or file picker)."""
+    """Step 4: provide project-specific file content (paste or file picker)."""
 
     def __init__(self, master, project_files, on_next):
         super().__init__(master)
@@ -97,7 +145,7 @@ class ContentStep(ctk.CTkFrame):
 
         ctk.CTkLabel(
             self,
-            text="Step 3: Project-Specific Content",
+            text="Step 4: Project-Specific Content",
             font=ctk.CTkFont(size=18, weight="bold"),
         ).pack(pady=(20, 10))
 
@@ -156,7 +204,7 @@ class ContentStep(ctk.CTkFrame):
 
 
 class ConflictStep(ctk.CTkFrame):
-    """Step 4: show conflicts and ask the user how to proceed for each."""
+    """Step 5: show conflicts and ask the user how to proceed for each."""
 
     def __init__(self, master, report: ConflictReport, on_next):
         super().__init__(master)
@@ -166,7 +214,7 @@ class ConflictStep(ctk.CTkFrame):
 
         ctk.CTkLabel(
             self,
-            text="Step 4: Resolve Conflicts",
+            text="Step 5: Resolve Conflicts",
             font=ctk.CTkFont(size=18, weight="bold"),
         ).pack(pady=(20, 10))
 
@@ -201,14 +249,14 @@ class ConflictStep(ctk.CTkFrame):
 
 
 class SummaryStep(ctk.CTkFrame):
-    """Step 5: show what was copied/skipped."""
+    """Step 6: show what was copied/skipped."""
 
     def __init__(self, master, written: list[Path], skipped: list[Path], on_finish):
         super().__init__(master)
         self.on_finish = on_finish
 
         ctk.CTkLabel(
-            self, text="Step 5: Summary", font=ctk.CTkFont(size=18, weight="bold")
+            self, text="Step 6: Summary", font=ctk.CTkFont(size=18, weight="bold")
         ).pack(pady=(20, 10))
 
         ctk.CTkLabel(self, text="Written files:", font=ctk.CTkFont(weight="bold")).pack(

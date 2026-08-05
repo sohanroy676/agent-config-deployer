@@ -5,7 +5,7 @@ import json
 import pytest
 
 from core import agent_loader
-from core.agent_loader import AgentConfigError, get_agent, list_agents
+from core.agent_loader import AgentConfigError, get_agent, list_agents, load_prompt
 
 
 def test_list_agents_returns_agents(monkeypatch, tmp_path):
@@ -79,3 +79,28 @@ def test_missing_name_field_raises(monkeypatch, tmp_path):
 
     with pytest.raises(AgentConfigError):
         list_agents()
+
+
+def test_load_prompt_returns_content(tmp_path):
+    template = tmp_path / "template"
+    template.mkdir()
+    (template / "prompt.md").write_text("Copy me", encoding="utf-8")
+    agent = {"name": "Cline", "base_template_path": str(template)}
+
+    assert load_prompt(agent) == "Copy me"
+
+
+def test_load_prompt_missing_file_raises(tmp_path):
+    template = tmp_path / "template"
+    template.mkdir()
+    agent = {"name": "Cline", "base_template_path": str(template)}
+
+    with pytest.raises(AgentConfigError):
+        load_prompt(agent)
+
+
+def test_load_prompt_missing_template_dir_raises(tmp_path):
+    agent = {"name": "Cline", "base_template_path": str(tmp_path / "nonexistent")}
+
+    with pytest.raises(AgentConfigError):
+        load_prompt(agent)
