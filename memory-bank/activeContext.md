@@ -4,7 +4,7 @@
 
 ## Current focus
 
-The wizard flow is now: source → agent → prompt (new) → content → conflicts → summary. The prompt step shows the agent's `prompt.md` template with a Copy button so users can generate project-specific file contents in Claude. Implemented on `feature/prompt-step` (943fcc0).
+The wizard flow is now: source → agent → prompt → content (one page per file) → conflicts → summary. The content step shows each project-specific file on its own page with a filename heading, a one-line description, and auto-save on navigation. Implemented on `feature/per-file-content-pages` (174d13d).
 
 ## Recent decisions
 
@@ -13,6 +13,7 @@ The wizard flow is now: source → agent → prompt (new) → content → confli
 - `agents/*.json` defines the file mapping (base_files + project_specific_files) so adding a new agent requires no core/UI changes.
 - Created `templates/cline-templates/.clinerules-base/` (01-06 rule files) because the template README referenced it but it didn't exist yet.
 - Added a prompt step between agent selection and content input; the prompt is loaded from `<base_template_path>/prompt.md` via `agent_loader.load_prompt()`.
+- Content step is now one page per project-specific file; descriptions come from `agents/*.json` `file_descriptions`, and navigation/save logic is extracted into `ContentPageState` (pure, testable without a Tk root).
 
 ## Blockers / open questions
 
