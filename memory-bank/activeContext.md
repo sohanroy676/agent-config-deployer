@@ -4,7 +4,7 @@
 
 ## Current focus
 
-Building out the v1 app skeleton for the agent-config-deployer. The full wizard flow (source → agent → content → conflicts → summary) is implemented and committed on `feature/app-skeleton` (c0d21d1).
+The wizard flow is now: source → agent → prompt (new) → content → conflicts → summary. The prompt step shows the agent's `prompt.md` template with a Copy button so users can generate project-specific file contents in Claude. Implemented on `feature/prompt-step` (943fcc0).
 
 ## Recent decisions
 
@@ -12,6 +12,7 @@ Building out the v1 app skeleton for the agent-config-deployer. The full wizard 
 - Conflict resolution is pure decision logic in `conflict_resolver.py`; the UI layer prompts the user and records choices (overwrite/skip/merge) — never auto-decides.
 - `agents/*.json` defines the file mapping (base_files + project_specific_files) so adding a new agent requires no core/UI changes.
 - Created `templates/cline-templates/.clinerules-base/` (01-06 rule files) because the template README referenced it but it didn't exist yet.
+- Added a prompt step between agent selection and content input; the prompt is loaded from `<base_template_path>/prompt.md` via `agent_loader.load_prompt()`.
 
 ## Blockers / open questions
 
