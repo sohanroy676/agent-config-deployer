@@ -1,0 +1,31 @@
+# Reduces tokens by keeping these out of Cline's context entirely.
+# Edit per project as needed, but this covers most stacks.
+
+node_modules/
+dist/
+build/
+out/
+.next/
+coverage/
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.env
+.env.local
+.git/
+*.log
+*.min.js
+*.min.css
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.mp4
+*.zip
+*.pdf
