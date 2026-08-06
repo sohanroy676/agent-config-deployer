@@ -67,3 +67,18 @@ def test_state_full_flow():
         "architecture.md": "arch content",
     }
     assert state.is_last
+
+
+def test_state_page_counters():
+    """Page counters drive the 'File X of Y' label and footer labels."""
+    state = ContentPageState(FILES, DESCRIPTIONS)
+    assert state.page_number == 1
+    assert state.total_pages == 3
+    state.go_next()
+    assert state.page_number == 2
+    state.go_next()
+    assert state.page_number == 3
+    assert state.is_last
+    # Moving back restores the previous counter.
+    assert state.go_back() is True
+    assert state.page_number == 2
