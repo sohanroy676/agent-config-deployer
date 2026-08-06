@@ -5,6 +5,8 @@ Note: only ONE Tk root window may be created per test process — a second
 builds, so all assertions share a single window instance.
 """
 
+import tkinter as tk
+
 from ui.main_window import MainWindow
 
 
@@ -29,5 +31,17 @@ def test_main_window_does_not_shadow_tk_state_method():
         # Steps update the wizard_state dict in place.
         app.wizard_state["folder_path"] = "C:/some/folder"
         assert app.wizard_state["folder_path"] == "C:/some/folder"
+
+        # Regression: clicking Finish on the summary step destroys the window;
+        # the footer refresh must not touch widgets that no longer exist.
+        from pathlib import Path
+
+        app._show_summary_step(written=[Path("C:/x/AGENTS.md")], skipped=[])
+        app._footer_next()  # must not raise TclError
     finally:
-        app.destroy()
+        # The Finish action above destroys the window; only destroy if alive.
+        try:
+            if app.winfo_exists():
+                app.destroy()
+        except tk.TclError:
+            pass

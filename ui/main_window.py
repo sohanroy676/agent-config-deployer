@@ -1,5 +1,6 @@
 """Main application window / wizard controller."""
 
+import tkinter as tk
 from pathlib import Path
 
 import customtkinter as ctk
@@ -174,16 +175,27 @@ class MainWindow(ctk.CTk):
             self.current_step, "on_footer_back"
         ):
             self.current_step.on_footer_back()
-            # The step may have changed its footer labels (e.g. content pages).
-            self._update_footer(self.current_step)
+            # The step may have changed its footer labels (e.g. content pages),
+            # but it may also have finished the wizard and destroyed the window.
+            if self._window_alive():
+                self._update_footer(self.current_step)
 
     def _footer_next(self):
         if self.current_step is not None and hasattr(
             self.current_step, "on_footer_next"
         ):
             self.current_step.on_footer_next()
-            # The step may have changed its footer labels (e.g. content pages).
-            self._update_footer(self.current_step)
+            # The step may have changed its footer labels (e.g. content pages),
+            # but it may also have finished the wizard and destroyed the window.
+            if self._window_alive():
+                self._update_footer(self.current_step)
+
+    def _window_alive(self) -> bool:
+        """True if the Tk window still exists (not destroyed by a step callback)."""
+        try:
+            return bool(self.winfo_exists())
+        except tk.TclError:
+            return False
 
     # ------------------------------------------------------------------
     # Step navigation
