@@ -4,20 +4,21 @@
 
 ## Current focus
 
-The wizard flow is now: source → agent → prompt → content (one page per file) → conflicts → summary. The content step shows each project-specific file on its own page with a filename heading, a one-line description, and auto-save on navigation. Implemented on `feature/per-file-content-pages` (174d13d).
+The full UI/UX redesign is complete on `feature/ui-redesign` (16b2f39): a cohesive design system (`ui/theme.py`), reusable components (`ui/components.py`), a rebuilt app shell with header/footer/theme toggle, and redesigned 6-step wizard screens with loading/error/empty states. All 56 tests pass.
 
 ## Recent decisions
 
-- Chose to keep `file_deployer.py` as the ONLY module that writes into the target project, per architecture.md.
-- Conflict resolution is pure decision logic in `conflict_resolver.py`; the UI layer prompts the user and records choices (overwrite/skip/merge) — never auto-decides.
-- `agents/*.json` defines the file mapping (base_files + project_specific_files) so adding a new agent requires no core/UI changes.
-- Created `templates/cline-templates/.clinerules-base/` (01-06 rule files) because the template README referenced it but it didn't exist yet.
-- Added a prompt step between agent selection and content input; the prompt is loaded from `<base_template_path>/prompt.md` via `agent_loader.load_prompt()`.
-- Content step is now one page per project-specific file; descriptions come from `agents/*.json` `file_descriptions`, and navigation/save logic is extracted into `ContentPageState` (pure, testable without a Tk root).
+- Introduced a design-system layer (`ui/theme.py`) with dark/light palettes, standardized typography, spacing, radii, and widget factories — every screen draws from it; no isolated cosmetic hacks.
+- Added shared components (`ui/components.py`): cards, badges, inline notices, form fields with inline validation (replaces `messagebox` popups), step-indicator rail, segmented conflict choices (replaces dropdowns), and loading/error/empty full-area states.
+- Moved "Back"/"Next" into a shared footer with per-step metadata (`back_enabled`/`next_enabled`/`footer_*_label`); footer labels refresh after content-page navigation.
+- Conflict decisions are recorded live via the segmented control's callback (same `report.decisions` contract) — the old collect-on-Next loop is gone.
+- Theme toggle rebuilds the current step; wizard state persists across rebuilds (`folder_path`, `repo_url`, `agent`, `_content_state`, `report`, `written`/`skipped`), so toggling on the content/conflicts steps does not lose data.
+- Default window is now 980x680 (min 820x600) and follows the system appearance with a dark/light toggle in the header; `main.py` sets the appearance mode and a pure-Tk app icon.
+- Kept `file_deployer.py` as the ONLY module writing into the target project and conflict resolution in `conflict_resolver.py` unchanged.
 
 ## Blockers / open questions
 
-- None blocking. Note: `config/settings.py` exists but is not yet wired into the UI (last-used paths / per-agent base template paths are not yet remembered between runs).
+- None blocking. Note: `config/settings.py` still exists but is not yet wired into the UI (last-used paths / per-agent base template paths are not yet remembered between runs).
 
 ## Next step
 
