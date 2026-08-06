@@ -288,8 +288,8 @@ class PromptStep(ctk.CTkFrame):
         theme.make_body(
             self,
             text=(
-                "Copy the prompt below and paste it into Claude (or your AI chat) "
-                "to generate the project-specific files. Then paste the results "
+                "Copy the prompt below, add your project details as instructed in the prompt and paste it "
+                "into Claude (or your AI chat) to generate the project-specific files. Then paste the results "
                 "into the next step."
             ),
         ).grid(row=1, column=0, sticky="w", pady=(0, theme.S_XL))
