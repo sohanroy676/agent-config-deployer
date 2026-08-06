@@ -3,8 +3,9 @@
 Use this workflow when implementing a new feature end-to-end.
 
 Steps:
+
 1. Confirm you understand the requirement — restate acceptance criteria (expected inputs/outputs, edge cases, what "done" looks like) before writing code. If the request is vague, ask for the missing specifics first.
-2. Check `memory-bank/architecture.md` and `systemPatterns.md` for existing conventions to follow.
+2. Check `.clinerules/architecture.md` and `memory-bank/systemPatterns.md` for existing conventions to follow.
 3. Create a feature branch (see 05-git-workflow.md).
 4. Implement the feature with minimal, targeted changes.
 5. Write/update tests per 03-testing.md and run the full suite.

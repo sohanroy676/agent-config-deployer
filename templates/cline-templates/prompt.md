@@ -2,6 +2,12 @@ I'm setting up project-specific configuration files for Cline (an AI coding agen
 for a new project. I need you to generate four files: tech-stack.md, architecture.md,
 projectBrief.md, and AGENTS.md.
 
+Here is my project explanation:
+
+[PROJECT EXPLANATION — describe what you're building, the stack you want to use if you already
+have a preference, key features, and anything else relevant. The more detail you give here, the
+fewer questions you'll get back.]
+
 IMPORTANT RULES FOR YOU:
 
 - Do NOT assume anything about the project that I haven't explicitly stated.
@@ -47,9 +53,3 @@ AGENTS.md:
 - Setup/run/test/lint commands (just the commands, no explanation)
 - 2-4 bullet points max of the most critical conventions any agent should know
 - End with a line pointing to .clinerules/ for detailed rules
-
-Here is my project explanation:
-
-[PROJECT EXPLANATION — describe what you're building, the stack you want to use if you already
-have a preference, key features, and anything else relevant. The more detail you give here, the
-fewer questions you'll get back.]
