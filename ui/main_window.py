@@ -148,11 +148,7 @@ class MainWindow(ctk.CTk):
         if self.current_step is None:
             return
         step = self.current_step
-        # Persist any in-progress content before the widget is destroyed so a
-        # theme toggle on the content step doesn't lose the user's work.
-        if isinstance(step, ContentPageController):
-            step._save_current()
-            self.wizard_state["_content_state"] = step.state
+        # _clear() persists any in-progress content before destroying the step.
         self._clear()
         if isinstance(step, SourceStep):
             self._show_source_step()
@@ -202,6 +198,11 @@ class MainWindow(ctk.CTk):
     # ------------------------------------------------------------------
     def _clear(self):
         if self.current_step is not None:
+            # Persist any in-progress content before the step is destroyed so
+            # back/forward navigation and theme rebuilds never lose it.
+            if isinstance(self.current_step, ContentPageController):
+                self.current_step._save_current()
+                self.wizard_state["_content_state"] = self.current_step.state
             self.current_step.destroy()
         self.current_step = None
 
@@ -317,12 +318,6 @@ class MainWindow(ctk.CTk):
 
     def _on_content(self, data: dict):
         self.wizard_state.update(data)
-        # Persist the content navigation state so a theme toggle on the
-        # conflicts step can rebuild the content step without losing data.
-        if self.current_step is not None and isinstance(
-            self.current_step, ContentPageController
-        ):
-            self.wizard_state["_content_state"] = self.current_step.state
         self._show_conflict_step()
 
     # ------------------------------------------------------------------

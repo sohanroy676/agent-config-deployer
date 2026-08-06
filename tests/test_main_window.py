@@ -8,6 +8,7 @@ builds, so all assertions share a single window instance.
 import tkinter as tk
 
 from ui.main_window import MainWindow
+from ui.wizard_steps import ContentPageController, PromptStep
 
 
 def test_main_window_does_not_shadow_tk_state_method():
@@ -40,6 +41,40 @@ def test_main_window_does_not_shadow_tk_state_method():
         app._footer_next()  # must not raise TclError
     finally:
         # The Finish action above destroys the window; only destroy if alive.
+        try:
+            if app.winfo_exists():
+                app.destroy()
+        except tk.TclError:
+            pass
+
+
+def test_content_persists_when_navigating_back_to_prompt():
+    """Regression: content typed on the content step must survive a
+    back-navigation to the prompt step and a return to the content step.
+
+    Previously the ContentPageState was only persisted on forward navigation,
+    so going back to the prompt step destroyed the controller and its saved
+    content, and returning to the content step started from an empty state.
+    """
+    app = MainWindow()
+    app.withdraw()
+    try:
+        app.wizard_state["agent"] = "Cline"
+        app._show_content_step()
+        controller = app.current_step
+        assert isinstance(controller, ContentPageController)
+        controller.textbox.insert("1.0", "my project content")
+
+        # Go back to the prompt step (first content page -> back exits).
+        app._footer_back()
+        assert isinstance(app.current_step, PromptStep)
+
+        # Return to the content step — content must still be there.
+        app._show_content_step()
+        controller = app.current_step
+        assert isinstance(controller, ContentPageController)
+        assert controller.state.content_map.get("AGENTS.md") == "my project content"
+    finally:
         try:
             if app.winfo_exists():
                 app.destroy()
