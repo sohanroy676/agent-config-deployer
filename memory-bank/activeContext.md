@@ -4,7 +4,7 @@
 
 ## Current focus
 
-The full UI/UX redesign is complete on `feature/ui-redesign` (16b2f39): a cohesive design system (`ui/theme.py`), reusable components (`ui/components.py`), a rebuilt app shell with header/footer/theme toggle, and redesigned 6-step wizard screens with loading/error/empty states. All 56 tests pass.
+Session complete. The full UI/UX redesign is done on `feature/ui-redesign` (16b2f39), with two post-redesign bug fixes (Finish-button crash `c7589ef`, content persistence on back-nav `c07d695`), prompt/workflow polish (`1329069`, `899bb60`), and a project README (`c2f7a59`). All 57 tests pass; `ruff` and `black` clean. The branch is ready for review/merge.
 
 ## Recent decisions
 

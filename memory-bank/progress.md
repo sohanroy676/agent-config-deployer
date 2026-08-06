@@ -4,6 +4,8 @@
 
 ## Done
 
+- Project README — added `README.md` covering purpose, features, requirements, installation, usage, project structure, agent extensibility, and development commands. Committed `c2f7a59` on `feature/ui-redesign`. 2026-08-06
+- Prompt template & workflow polish — moved the project-explanation section to the top of `templates/cline-templates/prompt.md` (2nd paragraph), fixed the new-feature workflow to reference `.clinerules/architecture.md` (was the non-existent `memory-bank/architecture.md`) in both `.clinerules/workflows/` and `templates/cline-templates/workflows/`, and updated the PromptStep description in `ui/wizard_steps.py` to tell users to add project details before pasting. Committed `1329069` (docs) and `899bb60` (ui). 2026-08-06
 - Fix: project-specific content was cleared when navigating back from the Content step to the Prompt step — `ContentPageState` was only persisted on forward navigation, so back-nav destroyed the controller and its `content_map`. `_clear()` (the single chokepoint before every step swap) now persists the content state, so back/forward navigation and theme rebuilds never lose it. Regression test added. Committed `c07d695` on `feature/ui-redesign`. 2026-08-06
 - Fix: `TclError: invalid command name` when clicking Finish on the summary step — `_footer_next()` refreshed the footer after the step's `on_finish` callback had already destroyed the window. Added a `_window_alive()` guard (via `winfo_exists`) so the footer refresh is skipped once the window is gone, plus a regression test. Committed `c7589ef` on `feature/ui-redesign`. 2026-08-06
 - Full UI/UX redesign — introduced a cohesive design system (`ui/theme.py` with dark/light palettes, type scale, radii, spacing, and widget factories) and reusable components (`ui/components.py`: cards, badges, inline notices, form fields with inline validation, step indicator rail, segmented conflict choices, loading/error/empty states). Rebuilt the app shell (`ui/main_window.py`) with a header (title, tagline, theme toggle, step rail) and a shared footer (context-aware Back/Next labels/state, refreshed after content-page navigation), plus redesigned all 6 wizard steps (`ui/wizard_steps.py`) with scrollable agent/conflict/summary cards and a pure `StepIndicatorState`. Theme toggling rebuilds the current step without losing wizard data. All 56 tests pass; `ruff` and `black` clean. Committed `16b2f39` on `feature/ui-redesign`. 2026-08-06
@@ -22,4 +24,3 @@
 - Wire `config/settings.py` into the UI (remember last-used folder/repo/agent, per-agent base template paths)
 - Add Claude Code agent config (`agents/claude_code.json`) as a second agent
 - PyInstaller packaging to produce a standalone `.exe`
-- README.md for the app itself
