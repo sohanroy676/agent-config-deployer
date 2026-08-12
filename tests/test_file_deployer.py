@@ -13,7 +13,7 @@ from core.file_deployer import (
 
 AGENT_CONFIG = {
     "name": "Cline",
-    "base_template_path": "templates/cline-templates",
+    "base_template_path": "templates/cline",
     "structure": {
         "base_files": {
             ".clinerules-base/01-security.md": ".clinerules/01-security.md",

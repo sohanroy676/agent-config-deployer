@@ -63,7 +63,7 @@ agent-config-deployer/
 ├── config/
 │   └── settings.py          # user settings persistence (not yet wired into the UI)
 ├── templates/
-│   └── cline-templates/     # base template files deployed into projects
+│   └── cline/               # base template files deployed into projects
 ├── tests/                   # pytest suite
 └── requirements.txt
 ```
