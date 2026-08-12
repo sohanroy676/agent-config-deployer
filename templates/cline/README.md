@@ -2,7 +2,7 @@
 
 ## One-time setup
 
-1. Keep this whole `cline-templates/` folder somewhere permanent on your machine (e.g. `~/cline-templates/`).
+1. Keep this whole `cline/` folder somewhere permanent on your machine (e.g. `~/cline/`).
 2. Optional: copy the contents of `.clinerules-base/` into Cline's **global custom instructions** (Settings) if you want them applied automatically to every project without copying files.
 
 ## For every new project
@@ -41,6 +41,7 @@ your-project/
 │   └── systemPatterns.md
 ├── .clineignore
 ├── .gitignore
+├── CHANGELOG.md             (regenerate via /commit, don't hand-edit)
 └── (your actual code)
 ```
 

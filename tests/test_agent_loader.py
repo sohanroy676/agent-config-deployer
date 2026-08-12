@@ -1,11 +1,18 @@
 """Tests for core/agent_loader.py."""
 
 import json
+from pathlib import Path
 
 import pytest
 
 from core import agent_loader
-from core.agent_loader import AgentConfigError, get_agent, list_agents, load_prompt
+from core.agent_loader import (
+    AgentConfigError,
+    _load_agent_file,
+    get_agent,
+    list_agents,
+    load_prompt,
+)
 
 
 def test_list_agents_returns_agents(monkeypatch, tmp_path):
@@ -104,3 +111,56 @@ def test_load_prompt_missing_template_dir_raises(tmp_path):
 
     with pytest.raises(AgentConfigError):
         load_prompt(agent)
+
+
+# ---------------------------------------------------------------------------
+# Agent config integrity (against the real agents/*.json files)
+# ---------------------------------------------------------------------------
+# The real agent configs are the source of truth for what gets deployed.
+# These tests fail loudly if a config references a template file that doesn't
+# exist or forgets a UI description, so wiring gaps are caught here instead of
+# at deploy time.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _real_agent_configs() -> list[tuple[Path, dict]]:
+    agents_dir = REPO_ROOT / "agents"
+    configs = []
+    for path in sorted(agents_dir.glob("*.json")):
+        configs.append((path, _load_agent_file(path)))
+    return configs
+
+
+def test_real_agent_configs_have_template_folder():
+    """Every agent's base_template_path must point to an existing folder."""
+    for path, config in _real_agent_configs():
+        template = REPO_ROOT / config["base_template_path"]
+        assert template.is_dir(), (
+            f"{path.name}: base_template_path '{config['base_template_path']}' "
+            f"does not exist"
+        )
+
+
+def test_real_agent_base_files_resolve_to_existing_templates():
+    """Every base_files source must resolve to a real file under the template."""
+    for path, config in _real_agent_configs():
+        template = REPO_ROOT / config["base_template_path"]
+        base_files = config.get("structure", {}).get("base_files", {})
+        assert base_files, f"{path.name}: expected at least one base file"
+        for src_rel in base_files:
+            src = template / src_rel
+            assert src.is_file(), f"{path.name}: base file source missing: {src_rel}"
+
+
+def test_real_agent_project_files_have_descriptions():
+    """Every project-specific file key needs a UI-facing description."""
+    for path, config in _real_agent_configs():
+        structure = config.get("structure", {})
+        project_files = structure.get("project_specific_files", {})
+        descriptions = structure.get("file_descriptions", {})
+        assert project_files, f"{path.name}: expected project-specific files"
+        for key in project_files:
+            assert key in descriptions, (
+                f"{path.name}: project-specific file '{key}' "
+                f"has no file_descriptions entry"
+            )

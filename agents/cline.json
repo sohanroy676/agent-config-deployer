@@ -17,6 +17,7 @@
             "memory-bank-template/progress.md": "memory-bank/progress.md",
             "memory-bank-template/projectBrief.md": "memory-bank/projectBrief.md",
             "memory-bank-template/systemPatterns.md": "memory-bank/systemPatterns.md",
+            "project-specific-template/CHANGELOG.md": "CHANGELOG.md",
             ".clineignore": ".clineignore",
             ".gitignore": ".gitignore"
         },
