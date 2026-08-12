@@ -1,6 +1,6 @@
 I'm setting up project-specific configuration files for Cline (an AI coding agent in VS Code)
-for a new project. I need you to generate four files: tech-stack.md, architecture.md,
-projectBrief.md, and AGENTS.md.
+for a new project. I need you to generate tech-stack.md, architecture.md, projectBrief.md, and
+AGENTS.md — and optionally ROADMAP.md.
 
 Here is my project explanation:
 
@@ -20,6 +20,17 @@ IMPORTANT RULES FOR YOU:
 - Give me the full content of each file directly in the chat as plain text in a code block,
   labeled clearly with the filename above each block. Do NOT create a downloadable artifact or
   file — I need to copy-paste the text directly.
+
+STEP ORDER — follow exactly:
+
+1. First, read my project explanation above.
+2. Ask me: "Do you want me to generate ROADMAP.md content as well, or leave it as a blank
+   template for you to fill in later?" Ask this as its own standalone question, before any
+   other clarifying questions, and wait for my answer.
+3. THEN ask any clarifying questions needed for tech-stack.md, architecture.md, projectBrief.md,
+   and AGENTS.md (and ROADMAP.md too, if I said yes in step 2) — batched together in one message.
+4. Only after I've answered, generate the files.
+5. If I said no to ROADMAP.md in step 2, do not output any content for it, and only give the content for the 4 other files.
 
 WHAT EACH FILE NEEDS TO COVER:
 
@@ -53,3 +64,12 @@ AGENTS.md:
 - Setup/run/test/lint commands (just the commands, no explanation)
 - 2-4 bullet points max of the most critical conventions any agent should know
 - End with a line pointing to .clinerules/ for detailed rules
+
+ROADMAP.md (ONLY if I said yes in step 2):
+
+- Now: what should be actively built first — do NOT guess priority, ask me explicitly
+- Next: planned but not started — again, ask, don't infer from the project explanation alone
+- Later / ideas: loosely planned items
+- Explicitly not planned: things intentionally excluded
+- Do not populate any of these sections from assumptions about what a project like this
+  "typically" needs — every item must come from something I actually said.
