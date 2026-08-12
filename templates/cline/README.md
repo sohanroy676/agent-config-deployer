@@ -13,9 +13,10 @@
     - `.clineignore` → project root
     - `.gitignore` → project root (merge with any existing one)
     - `memory-bank-template/*.md` → into a new `memory-bank/` folder, then fill in `projectBrief.md`
-2. Copy `project-specific-template/*.md` into `.clinerules/` too, except the `AGENTS.md`, and fill in `tech-stack.md` and `architecture.md` for this specific project BEFORE starting to build features.
-3. Copy the `AGENTS.md` file into the project root, and fill in with project-specific content.
-4. Tell Cline: "Read all files in .clinerules and memory-bank, then confirm you understand the project setup" as your first message in a new project.
+2. Copy `tech-stack.md` and `architecture.md` from `project-specific-template/` into `memory-bank/` and fill them in for this specific project BEFORE starting to build features.
+3. Optional: copy `ROADMAP.md` from `project-specific-template/` into the project root and fill in the plan, or leave the blank template.
+4. Copy the `AGENTS.md` file into the project root, and fill in with project-specific content.
+5. Tell Cline: "Read all files in .clinerules and memory-bank, then confirm you understand the project setup" as your first message in a new project.
 
 ## Resulting folder structure in each project
 
@@ -28,20 +29,21 @@ your-project/
 │   ├── 04-code-quality-review.md
 │   ├── 05-git-workflow.md
 │   ├── 06-session-efficiency.md
-│   ├── tech-stack.md          (filled in per project)
-│   ├── architecture.md        (filled in per project)
 │   └── workflows/
 │       ├── new-feature.md
 │       ├── debug.md
 │       └── commit.md
 ├── memory-bank/
-│   ├── projectBrief.md
+│   ├── projectBrief.md        (filled in per project)
 │   ├── activeContext.md
 │   ├── progress.md
-│   └── systemPatterns.md
+│   ├── systemPatterns.md
+│   ├── tech-stack.md          (filled in per project)
+│   └── architecture.md        (filled in per project)
 ├── .clineignore
 ├── .gitignore
 ├── CHANGELOG.md             (regenerate via /commit, don't hand-edit)
+├── ROADMAP.md               (optional — blank template deployed, fill in the plan)
 └── (your actual code)
 ```
 
