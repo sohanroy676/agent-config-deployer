@@ -90,8 +90,10 @@ def deploy_project_specific_files(
     project_files = agent_config.get("structure", {}).get("project_specific_files", {})
     for key, dst_rel in project_files.items():
         content = content_map.get(key)
-        if content is None:
-            continue  # user didn't provide this file — skip it
+        if not content or not content.strip():
+            # No content (or only whitespace) — skip so any pre-deployed
+            # base template (e.g. ROADMAP.md) is left in place.
+            continue
         dst = project_dir / dst_rel
         if dst.exists():
             choice = report.decisions.get(str(dst), "overwrite")

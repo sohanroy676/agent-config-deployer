@@ -164,3 +164,10 @@ def test_real_agent_project_files_have_descriptions():
                 f"{path.name}: project-specific file '{key}' "
                 f"has no file_descriptions entry"
             )
+
+
+def test_real_agent_prompt_resolves():
+    """Every agent's prompt.md must be readable so the Prompt step works."""
+    for path, config in _real_agent_configs():
+        prompt_text = load_prompt(config)
+        assert prompt_text.strip(), f"{path.name}: prompt.md is empty"

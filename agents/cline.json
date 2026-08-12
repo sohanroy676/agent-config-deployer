@@ -18,20 +18,24 @@
             "memory-bank-template/projectBrief.md": "memory-bank/projectBrief.md",
             "memory-bank-template/systemPatterns.md": "memory-bank/systemPatterns.md",
             "project-specific-template/CHANGELOG.md": "CHANGELOG.md",
+            "project-specific-template/ROADMAP.md": "ROADMAP.md",
             ".clineignore": ".clineignore",
             ".gitignore": ".gitignore"
         },
         "project_specific_files": {
             "AGENTS.md": "AGENTS.md",
-            "tech-stack.md": ".clinerules/tech-stack.md",
-            "architecture.md": ".clinerules/architecture.md",
-            "projectBrief.md": "memory-bank/projectBrief.md"
+            "tech-stack.md": "memory-bank/tech-stack.md",
+            "architecture.md": "memory-bank/architecture.md",
+            "projectBrief.md": "memory-bank/projectBrief.md",
+            "ROADMAP.md": "ROADMAP.md"
         },
         "file_descriptions": {
             "AGENTS.md": "Short cross-tool summary of the project for AI agents.",
             "tech-stack.md": "Languages, frameworks, test/lint/build commands for this project.",
             "architecture.md": "Folder structure, data flow, and key module responsibilities.",
-            "projectBrief.md": "What the project is, its core goal, and what's out of scope."
+            "projectBrief.md": "What the project is, its core goal, and what's out of scope.",
+            "ROADMAP.md": "Optional: forward-looking plan (Now/Next/Later). Leave blank to deploy the blank template."
         }
     }
 }
+
