@@ -4,21 +4,19 @@
 
 ## Current focus
 
-Session complete. The full UI/UX redesign is done on `feature/ui-redesign` (16b2f39), with two post-redesign bug fixes (Finish-button crash `c7589ef`, content persistence on back-nav `c07d695`), prompt/workflow polish (`1329069`, `899bb60`), and a project README (`c2f7a59`). All 57 tests pass; `ruff` and `black` clean. The branch is ready for review/merge.
+Session complete. Cline template improvements are done on `feature/cline-template-improvements`: renamed `templates/cline-templates/` → `templates/cline/` (`a30d6d6`), wired the `CHANGELOG.md` skeleton into `agents/cline.json` `base_files` so every project gets a Keep-a-Changelog file (`8d4b907`), clarified the prompt-step copy, added agent-config integrity tests, and regenerated `CHANGELOG.md` from commit history (`d7d133e`). The branch is ready for review/merge.
 
 ## Recent decisions
 
-- Introduced a design-system layer (`ui/theme.py`) with dark/light palettes, standardized typography, spacing, radii, and widget factories — every screen draws from it; no isolated cosmetic hacks.
-- Added shared components (`ui/components.py`): cards, badges, inline notices, form fields with inline validation (replaces `messagebox` popups), step-indicator rail, segmented conflict choices (replaces dropdowns), and loading/error/empty full-area states.
-- Moved "Back"/"Next" into a shared footer with per-step metadata (`back_enabled`/`next_enabled`/`footer_*_label`); footer labels refresh after content-page navigation.
-- Conflict decisions are recorded live via the segmented control's callback (same `report.decisions` contract) — the old collect-on-Next loop is gone.
-- Theme toggle rebuilds the current step; wizard state persists across rebuilds (`folder_path`, `repo_url`, `agent`, `_content_state`, `report`, `written`/`skipped`), so toggling on the content/conflicts steps does not lose data.
-- Default window is now 980x680 (min 820x600) and follows the system appearance with a dark/light toggle in the header; `main.py` sets the appearance mode and a pure-Tk app icon.
-- Kept `file_deployer.py` as the ONLY module writing into the target project and conflict resolution in `conflict_resolver.py` unchanged.
+- Renamed the Cline template folder from `cline-templates/` to `cline/` so it matches the agent name in `agents/cline.json` and stays consistent with the future `claude-code-templates/` pattern.
+- `CHANGELOG.md` is a **base file** (copied verbatim from `project-specific-template/CHANGELOG.md`), not a project-specific file — the `/commit` workflow regenerates it from conventional-commit history; users never hand-edit it.
+- The prompt step now tells users which files are deployed automatically (base rules, workflows, memory-bank skeletons, CHANGELOG, `.gitignore`/`.clineignore`) so they only paste the four project-specific files.
+- Added agent-config integrity tests in `tests/test_agent_loader.py` that load the real `agents/*.json` files and fail if a `base_files` source doesn't resolve or a `project_specific_files` key lacks a `file_descriptions` entry. These would have caught the missing CHANGELOG wiring.
+- Earlier design-system decisions (theme.py, components.py, shared footer, live conflict decisions, theme-toggle persistence) remain unchanged and in effect.
 
 ## Blockers / open questions
 
-- None blocking. Note: `config/settings.py` still exists but is not yet wired into the UI (last-used paths / per-agent base template paths are not yet remembered between runs).
+- **Flaky Tk test on this machine:** `tests/test_main_window.py::test_content_persists_when_navigating_back_to_prompt` intermittently fails with `_tkinter.TclError` (e.g. "Can't find a usable tk.tcl", "invalid command name tcl_findLibrary"). This is a Python 3.14 Tk installation issue, not a code regression — it passed in a full run and no Tk/init code changed. Not committed as a failing test knowingly; left as-is per 03-testing.md.
 
 ## Next step
 
