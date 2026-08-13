@@ -20,3 +20,7 @@ Session complete. CI + ADR + pre-deploy checklist deployment is done on `feature
 ## Next step
 
 Wire `config/settings.py` into the UI so the app remembers last-used folder/repo/agent and per-agent base template paths. After that, consider adding a Claude Code agent config as a second agent.
+
+## Roadmap expansion
+
+The ROADMAP was expanded with a full feature backlog across agent/template expansion, git/repo features, settings/UX polish, deployment/content, CI/CD templates, security/quality, integration/extensibility, and project self-improvement. Near-term priorities (Next): settings wiring, Claude Code agent, PyInstaller packaging, CI for this repo, and template variable substitution + final preview.
