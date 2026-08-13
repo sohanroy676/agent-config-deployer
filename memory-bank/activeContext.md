@@ -4,16 +4,14 @@
 
 ## Current focus
 
-Session complete. ROADMAP + memory-bank deployment work is done on `feature/roadmap-memory-bank`: optional `ROADMAP.md` deploys at project root (project-specific page; blank content falls back to the blank template), `tech-stack.md`/`architecture.md` now deploy to `memory-bank/` instead of `.clinerules/`, the Cline template README + new-feature workflow are synced, and a real-`prompt.md` resolution guard was added. All 64 tests pass; ruff + black clean. Branch is ready for review/merge.
+Session complete. CI + ADR + pre-deploy checklist deployment is done on `feature/ci-adr-deploy-templates`: the new `ci-template/` (`.github/workflows/ci.yml` + `dependabot.yml`), `docs-adr-template/` (`docs/adr/`), and `PRE-DEPLOY-CHECKLIST.md` are wired into the Cline agent's `base_files` so they deploy automatically. The Python CI workflow was rewritten to be configurable (matrix for OS/Python version, env vars for install/lint/format/test commands, secret-scan toggle) and extensible. All 66 tests pass; ruff + black clean. Branch is ready for review/merge.
 
 ## Recent decisions
 
-- `ROADMAP.md` is an **optional project-specific file deployed at the project root**. It's also a `base_files` entry so the blank template is always deployed; if the user leaves the ROADMAP content page blank (or whitespace-only), `deploy_project_specific_files` now skips non-blank writes, preserving the blank template.
-- `tech-stack.md` and `architecture.md` now deploy to `memory-bank/` (alongside `projectBrief.md`) instead of `.clinerules/` — the root project already moved its own copies (`R .clinerules/architecture.md -> memory-bank/`).
-- The prompt (`templates/cline/prompt.md`) asks the user whether to generate ROADMAP.md content before any other clarifying questions, honoring the optional nature.
-- Template docs (`templates/cline/README.md`, `workflows/new-feature.md`) and the root `.clinerules/workflows/new-feature.md` all now reference `memory-bank/architecture.md` and `ROADMAP.md`.
-- Added `memory-bank/ROADMAP.md` to this repo per the new-feature workflow (Now/Next/Later/Explicitly-not-planned); existing memory-bank docs were moved here from `.clinerules/`.
-- Earlier decisions (design system, CHANGELOG as base file, agent integrity tests) remain in effect.
+- The CI workflow (`ci-template/.github/workflows/ci.yml`) is a **configurable base file**: users edit a single CONFIG section (matrix for `os`/`python-version`, `env` vars for `INSTALL_CMD`/`LINT_CMD`/`FORMAT_CMD`/`TEST_CMD`, `RUN_SECRET_SCAN` toggle) rather than hunting through `# --- CUSTOMIZE ---` comments. It's extensible by adding steps/jobs.
+- `ci-template/.github/` (workflow + dependabot), `docs-adr-template/*.md` (→ `docs/adr/`), and `PRE-DEPLOY-CHECKLIST.md` (project root) are all **base files** — deployed automatically, with conflicts still prompted per file.
+- The PromptStep description now lists CI workflows, ADR templates, and the pre-deploy checklist among the automatically-deployed files.
+- Earlier decisions (ROADMAP optional deploy, memory-bank deployment targets, design system, CHANGELOG as base file, agent integrity tests) remain in effect.
 
 ## Blockers / open questions
 
