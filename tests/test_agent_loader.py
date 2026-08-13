@@ -171,3 +171,16 @@ def test_real_agent_prompt_resolves():
     for path, config in _real_agent_configs():
         prompt_text = load_prompt(config)
         assert prompt_text.strip(), f"{path.name}: prompt.md is empty"
+
+
+def test_real_ci_template_is_configurable():
+    """The deployed ci.yml must keep its configurability markers so users can
+    adapt it to their stack without rewriting the workflow."""
+    config = _load_agent_file(REPO_ROOT / "agents" / "cline.json")
+    template = REPO_ROOT / config["base_template_path"]
+    ci_path = template / "ci-template" / ".github" / "workflows" / "ci.yml"
+    assert ci_path.is_file(), "ci.yml template missing"
+
+    content = ci_path.read_text(encoding="utf-8")
+    for marker in ("INSTALL_CMD", "LINT_CMD", "FORMAT_CMD", "TEST_CMD", "matrix"):
+        assert marker in content, f"ci.yml is missing configurability marker: {marker}"

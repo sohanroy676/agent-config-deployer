@@ -288,8 +288,9 @@ class PromptStep(ctk.CTkFrame):
         theme.make_body(
             self,
             text=(
-                "Base rules, workflows, memory-bank skeletons, a CHANGELOG, and .gitignore/.clineignore "
-                "are deployed automatically. Copy the prompt below, add your project details as instructed "
+                "Base rules, workflows, memory-bank skeletons, a CHANGELOG, CI workflows (.github/), "
+                "ADR templates (docs/adr/), a pre-deploy checklist, and .gitignore/.clineignore are "
+                "deployed automatically. Copy the prompt below, add your project details as instructed "
                 "in the prompt and paste it into Claude (or your AI chat) to generate the project-specific "
                 "files. Then paste the results into the next step."
             ),
