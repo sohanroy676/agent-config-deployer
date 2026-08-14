@@ -51,3 +51,43 @@ def test_set_and_get_base_template_path(monkeypatch, tmp_path):
     monkeypatch.setattr(settings, "SETTINGS_PATH", path)
     settings.set_base_template_path("Cline", "C:/templates/cline")
     assert settings.get_base_template_path("Cline") == "C:/templates/cline"
+
+
+def test_clear_base_template_path(monkeypatch, tmp_path):
+    path = tmp_path / "settings.json"
+    monkeypatch.setattr(settings, "SETTINGS_PATH", path)
+    settings.set_base_template_path("Cline", "C:/templates/cline")
+    settings.clear_base_template_path("Cline")
+    assert settings.get_base_template_path("Cline") == ""
+
+
+def test_clear_base_template_path_missing_agent_is_noop(monkeypatch, tmp_path):
+    path = tmp_path / "settings.json"
+    monkeypatch.setattr(settings, "SETTINGS_PATH", path)
+    settings.clear_base_template_path("Nonexistent")
+    assert settings.get_base_template_path("Nonexistent") == ""
+
+
+def test_get_last_used_returns_defaults_when_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(settings, "SETTINGS_PATH", tmp_path / "settings.json")
+    assert settings.get_last_used() == settings.DEFAULT_SETTINGS["last_used"]
+
+
+def test_update_last_used_persists(monkeypatch, tmp_path):
+    path = tmp_path / "settings.json"
+    monkeypatch.setattr(settings, "SETTINGS_PATH", path)
+    settings.update_last_used(folder_path="C:/proj", repo_url="https://github.com/x/y")
+    loaded = settings.get_last_used()
+    assert loaded["folder_path"] == "C:/proj"
+    assert loaded["repo_url"] == "https://github.com/x/y"
+
+
+def test_update_last_used_preserves_other_keys(monkeypatch, tmp_path):
+    path = tmp_path / "settings.json"
+    monkeypatch.setattr(settings, "SETTINGS_PATH", path)
+    settings.update_last_used(folder_path="C:/proj", agent="Cline")
+    settings.update_last_used(repo_url="https://github.com/x/y")
+    loaded = settings.get_last_used()
+    assert loaded["folder_path"] == "C:/proj"
+    assert loaded["repo_url"] == "https://github.com/x/y"
+    assert loaded["agent"] == "Cline"

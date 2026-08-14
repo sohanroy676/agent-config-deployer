@@ -113,6 +113,30 @@ def test_load_prompt_missing_template_dir_raises(tmp_path):
         load_prompt(agent)
 
 
+def test_load_prompt_uses_override_path(tmp_path):
+    default = tmp_path / "default"
+    default.mkdir()
+    (default / "prompt.md").write_text("Default prompt", encoding="utf-8")
+    override = tmp_path / "override"
+    override.mkdir()
+    (override / "prompt.md").write_text("Override prompt", encoding="utf-8")
+    agent = {"name": "Cline", "base_template_path": str(default)}
+
+    assert load_prompt(agent, base_template_path=override) == "Override prompt"
+
+
+def test_load_prompt_override_missing_file_raises(tmp_path):
+    default = tmp_path / "default"
+    default.mkdir()
+    (default / "prompt.md").write_text("Default prompt", encoding="utf-8")
+    override = tmp_path / "override"
+    override.mkdir()
+    agent = {"name": "Cline", "base_template_path": str(default)}
+
+    with pytest.raises(AgentConfigError):
+        load_prompt(agent, base_template_path=override)
+
+
 # ---------------------------------------------------------------------------
 # Agent config integrity (against the real agents/*.json files)
 # ---------------------------------------------------------------------------
