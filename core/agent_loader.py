@@ -41,15 +41,22 @@ def get_agent(agent_name: str) -> dict:
     raise AgentConfigError(f"No agent named '{agent_name}' found")
 
 
-def load_prompt(agent_config: dict) -> str:
+def load_prompt(
+    agent_config: dict, base_template_path: str | Path | None = None
+) -> str:
     """Return the content of the agent's prompt.md template file.
 
     The prompt lives at <base_template_path>/prompt.md and is shown to the
     user so they can copy it into an AI chat to generate project-specific
-    file contents.
+    file contents. ``base_template_path`` overrides the agent config's
+    default (used when the user configures a custom template folder).
     """
-    base_template_path = Path(agent_config.get("base_template_path", ""))
-    prompt_path = base_template_path / "prompt.md"
+    template_path = (
+        Path(base_template_path)
+        if base_template_path is not None
+        else Path(agent_config.get("base_template_path", ""))
+    )
+    prompt_path = template_path / "prompt.md"
     if not prompt_path.exists():
         raise AgentConfigError(f"Prompt file not found: {prompt_path}")
     try:

@@ -4,6 +4,9 @@
 
 ## Done
 
+- Settings persistence wiring — wired `config/settings.py` into the UI so the app remembers the last-used folder/repo/agent and per-agent base template paths. Added `get_last_used()`/`update_last_used()`/`clear_base_template_path()` helpers; the Source step prefills from saved last-used values and persists on navigation, the Agent step prefills the last-used agent and gains a "Base template path" override field (with Browse), and prompt loading + deployment resolve the effective base template path (user-configured override → agent default). `load_prompt()` accepts an optional `base_template_path` override. Added tests for prefill/persist/clear/effective-path and agent_loader override. On `feature/settings-persistence` (commit `8291f1e`); all 72 tests pass; ruff + black clean. 2026-08-14
+- Roadmap expansion — added a full feature backlog to `memory-bank/ROADMAP.md` (agent/template expansion, git/repo features, settings/UX polish, deployment/content, CI/CD templates, security/quality, integration/extensibility, project self-improvement) and noted it in `activeContext.md`. 2026-08-13
+- CI + ADR + pre-deploy checklist deployment — wired the new `ci-template/` (`.github/workflows/ci.yml` + `dependabot.yml`), `docs-adr-template/` (`docs/adr/`), and `PRE-DEPLOY-CHECKLIST.md` into the Cline agent's `base_files` so they deploy automatically. Rewrote the Python CI workflow to be configurable (matrix for OS/Python version, env vars for install/lint/format/test commands, secret-scan toggle) and extensible. Updated UI copy, READMEs, and added 2 tests (new base-file deployment + CI configurability markers). All 66 tests pass; ruff + black clean. On `feature/ci-adr-deploy-templates`. 2026-08-13
 - ROADMAP + memory-bank deployment — wire the optional `ROADMAP.md` (project-specific page; blank content falls back to the blank template via `deploy_project_specific_files` skip-on-empty), point `tech-stack.md`/`architecture.md` deployments at `memory-bank/` instead of `.clinerules/`, sync the Cline template README and new-feature workflow, and add a real-`prompt.md` resolution guard. 4 new tests; all 64 pass. On `feature/roadmap-memory-bank`. 2026-08-12
 - Cline template improvements — renamed `templates/cline-templates/` → `templates/cline/` (matches `agents/cline.json`), wired the `CHANGELOG.md` skeleton from `project-specific-template/` into `base_files` so every project gets a Keep-a-Changelog file (regenerated via `/commit` workflow, not hand-edited), clarified the prompt step to say what's deployed automatically, added agent-config integrity tests (base template sources resolve, project files have descriptions), and regenerated `CHANGELOG.md` from commit history. 3 commits on `feature/cline-template-improvements` (`a30d6d6`, `8d4b907`, `d7d133e`). 2026-08-12
 - Project README — added `README.md` covering purpose, features, requirements, installation, usage, project structure, agent extensibility, and development commands. Committed `c2f7a59` on `feature/ui-redesign`. 2026-08-06
@@ -23,6 +26,5 @@
 
 ## Not started / backlog
 
-- Wire `config/settings.py` into the UI (remember last-used folder/repo/agent, per-agent base template paths)
 - Add Claude Code agent config (`agents/claude_code.json`) as a second agent
 - PyInstaller packaging to produce a standalone `.exe`

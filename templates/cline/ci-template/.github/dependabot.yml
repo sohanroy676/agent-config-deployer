@@ -1,0 +1,22 @@
+# Enables automated dependency update PRs when vulnerabilities are found.
+# CUSTOMIZE package-ecosystem per your stack: "pip", "npm", "cargo", "docker", "github-actions", etc.
+# You can list multiple ecosystems if your project mixes stacks (e.g. Python backend + npm frontend).
+#
+# NOTE: GitHub's secret scanning is separate and needs no config file — just enable it in:
+# Repo Settings -> Code security and analysis -> Secret scanning (toggle ON, free for public repos,
+# also free for private repos on GitHub Team/Enterprise; for free private repos check current GitHub 
+# pricing as this changes). Same page also has "Dependabot alerts" and "Dependabot security updates" 
+# toggles which pair with this file.
+
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

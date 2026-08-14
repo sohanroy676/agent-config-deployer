@@ -113,6 +113,30 @@ def test_load_prompt_missing_template_dir_raises(tmp_path):
         load_prompt(agent)
 
 
+def test_load_prompt_uses_override_path(tmp_path):
+    default = tmp_path / "default"
+    default.mkdir()
+    (default / "prompt.md").write_text("Default prompt", encoding="utf-8")
+    override = tmp_path / "override"
+    override.mkdir()
+    (override / "prompt.md").write_text("Override prompt", encoding="utf-8")
+    agent = {"name": "Cline", "base_template_path": str(default)}
+
+    assert load_prompt(agent, base_template_path=override) == "Override prompt"
+
+
+def test_load_prompt_override_missing_file_raises(tmp_path):
+    default = tmp_path / "default"
+    default.mkdir()
+    (default / "prompt.md").write_text("Default prompt", encoding="utf-8")
+    override = tmp_path / "override"
+    override.mkdir()
+    agent = {"name": "Cline", "base_template_path": str(default)}
+
+    with pytest.raises(AgentConfigError):
+        load_prompt(agent, base_template_path=override)
+
+
 # ---------------------------------------------------------------------------
 # Agent config integrity (against the real agents/*.json files)
 # ---------------------------------------------------------------------------
@@ -171,3 +195,16 @@ def test_real_agent_prompt_resolves():
     for path, config in _real_agent_configs():
         prompt_text = load_prompt(config)
         assert prompt_text.strip(), f"{path.name}: prompt.md is empty"
+
+
+def test_real_ci_template_is_configurable():
+    """The deployed ci.yml must keep its configurability markers so users can
+    adapt it to their stack without rewriting the workflow."""
+    config = _load_agent_file(REPO_ROOT / "agents" / "cline.json")
+    template = REPO_ROOT / config["base_template_path"]
+    ci_path = template / "ci-template" / ".github" / "workflows" / "ci.yml"
+    assert ci_path.is_file(), "ci.yml template missing"
+
+    content = ci_path.read_text(encoding="utf-8")
+    for marker in ("INSTALL_CMD", "LINT_CMD", "FORMAT_CMD", "TEST_CMD", "matrix"):
+        assert marker in content, f"ci.yml is missing configurability marker: {marker}"

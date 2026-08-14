@@ -127,13 +127,23 @@ class AgentStep(ctk.CTkFrame):
     footer_back_label = "Back"
     footer_next_label = "Next"
 
-    def __init__(self, master, agents, on_next, on_back, initial_agent: str = ""):
+    def __init__(
+        self,
+        master,
+        agents,
+        on_next,
+        on_back,
+        initial_agent: str = "",
+        template_paths: dict | None = None,
+    ):
         super().__init__(master, fg_color="transparent")
         self.on_next = on_next
         self.on_back = on_back
         self.agents = agents
+        self.template_paths = template_paths or {}
         default = agents[0]["name"] if agents else ""
         self.selected = tk.StringVar(value=initial_agent or default)
+        self.template_var = tk.StringVar(value="")
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(2, weight=1)
@@ -164,6 +174,9 @@ class AgentStep(ctk.CTkFrame):
 
         for agent in self.agents:
             self._build_agent_card(self.list_frame, agent)
+
+        self._build_template_field()
+        self._refresh_template_field()
 
     def _build_agent_card(self, master, agent: dict):
         name = agent.get("name", "Unknown")
@@ -242,6 +255,7 @@ class AgentStep(ctk.CTkFrame):
     def _select(self, name: str):
         self.selected.set(name)
         self._refresh_selection()
+        self._refresh_template_field()
 
     def _refresh_selection(self):
         """Rebuild the card list so the selected card gets the accent border."""
@@ -256,13 +270,59 @@ class AgentStep(ctk.CTkFrame):
         for agent in self.agents:
             self._build_agent_card(self.list_frame, agent)
 
+    def _default_template_path(self, agent_name: str) -> str:
+        """Return the agent config's default base template path."""
+        for agent in self.agents:
+            if agent.get("name") == agent_name:
+                return agent.get("base_template_path", "")
+        return ""
+
+    def _refresh_template_field(self):
+        """Show the effective base template path for the selected agent."""
+        agent_name = self.selected.get()
+        configured = self.template_paths.get(agent_name, "")
+        self.template_var.set(configured or self._default_template_path(agent_name))
+
+    def _build_template_field(self):
+        card = Card(self)
+        card.grid(row=3, column=0, sticky="ew", pady=(theme.S_MD, 0))
+        body = card.body()
+        body.grid_columnconfigure(0, weight=1)
+
+        self.template_field = FormField(
+            body,
+            label="Base template path",
+            textvariable=self.template_var,
+            placeholder="templates/cline",
+            hint="Optional: override the agent's bundled templates. Leave as the default to use the packaged templates.",
+        )
+        self.template_field.grid(row=0, column=0, sticky="ew")
+        self.template_entry = self.template_field.input_widget
+
+        browse_row = ctk.CTkFrame(body, fg_color="transparent")
+        browse_row.grid(row=1, column=0, sticky="ew", pady=(theme.S_SM, 0))
+        browse_row.grid_columnconfigure(0, weight=1)
+        theme.make_secondary_button(
+            browse_row, text="Browse…", width=110, command=self._browse_template
+        ).grid(row=0, column=1, sticky="e")
+
+    def _browse_template(self):
+        folder = filedialog.askdirectory()
+        if folder:
+            self.template_var.set(folder)
+
     def on_footer_back(self):
         self.on_back()
 
     def on_footer_next(self):
         if not self.selected.get():
             return
-        self.on_next({"agent": self.selected.get()})
+        self.on_next(
+            {
+                "agent": self.selected.get(),
+                "template_path": self.template_var.get().strip(),
+            }
+        )
 
 
 class PromptStep(ctk.CTkFrame):
@@ -288,8 +348,9 @@ class PromptStep(ctk.CTkFrame):
         theme.make_body(
             self,
             text=(
-                "Base rules, workflows, memory-bank skeletons, a CHANGELOG, and .gitignore/.clineignore "
-                "are deployed automatically. Copy the prompt below, add your project details as instructed "
+                "Base rules, workflows, memory-bank skeletons, a CHANGELOG, CI workflows (.github/), "
+                "ADR templates (docs/adr/), a pre-deploy checklist, and .gitignore/.clineignore are "
+                "deployed automatically. Copy the prompt below, add your project details as instructed "
                 "in the prompt and paste it into Claude (or your AI chat) to generate the project-specific "
                 "files. Then paste the results into the next step."
             ),

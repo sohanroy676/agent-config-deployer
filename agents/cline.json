@@ -19,6 +19,11 @@
             "memory-bank-template/systemPatterns.md": "memory-bank/systemPatterns.md",
             "project-specific-template/CHANGELOG.md": "CHANGELOG.md",
             "project-specific-template/ROADMAP.md": "ROADMAP.md",
+            "ci-template/.github/workflows/ci.yml": ".github/workflows/ci.yml",
+            "ci-template/.github/dependabot.yml": ".github/dependabot.yml",
+            "docs-adr-template/adr-template.md": "docs/adr/adr-template.md",
+            "docs-adr-template/0001-record-architecture-decisions.md": "docs/adr/0001-record-architecture-decisions.md",
+            "PRE-DEPLOY-CHECKLIST.md": "PRE-DEPLOY-CHECKLIST.md",
             ".clineignore": ".clineignore",
             ".gitignore": ".gitignore"
         },

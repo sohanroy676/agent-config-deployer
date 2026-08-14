@@ -5,6 +5,7 @@ from pathlib import Path
 
 import customtkinter as ctk
 
+from config import settings
 from core import agent_loader, git_handler
 from core.conflict_resolver import detect_conflicts
 from core.file_deployer import (
@@ -44,6 +45,7 @@ class MainWindow(ctk.CTk):
         self.wizard_state: dict = {}
         self.current_step = None
         self._step_index = 0
+        self._last_used = settings.get_last_used()
 
         self._build_shell()
         self._show_source_step()
@@ -250,13 +252,21 @@ class MainWindow(ctk.CTk):
         step = SourceStep(
             self.content,
             on_next=self._on_source,
-            initial_folder=self.wizard_state.get("folder_path", ""),
-            initial_repo=self.wizard_state.get("repo_url", ""),
+            initial_folder=self.wizard_state.get(
+                "folder_path", self._last_used.get("folder_path", "")
+            ),
+            initial_repo=self.wizard_state.get(
+                "repo_url", self._last_used.get("repo_url", "")
+            ),
         )
         self._set_step(step, 0)
 
     def _on_source(self, data: dict):
         self.wizard_state.update(data)
+        settings.update_last_used(
+            folder_path=data.get("folder_path", ""),
+            repo_url=data.get("repo_url", ""),
+        )
         self._show_agent_step()
 
     # ------------------------------------------------------------------
@@ -268,12 +278,22 @@ class MainWindow(ctk.CTk):
             agents=self.agents,
             on_next=self._on_agent,
             on_back=self._show_source_step,
-            initial_agent=self.wizard_state.get("agent", ""),
+            initial_agent=self.wizard_state.get(
+                "agent", self._last_used.get("agent", "")
+            ),
+            template_paths=settings.load_settings().get("base_template_paths", {}),
         )
         self._set_step(step, 1)
 
     def _on_agent(self, data: dict):
         self.wizard_state.update(data)
+        agent_name = data.get("agent", "")
+        settings.update_last_used(agent=agent_name)
+        template_path = data.get("template_path", "").strip()
+        if template_path:
+            settings.set_base_template_path(agent_name, template_path)
+        else:
+            settings.clear_base_template_path(agent_name)
         self._show_prompt_step()
 
     # ------------------------------------------------------------------
@@ -282,7 +302,9 @@ class MainWindow(ctk.CTk):
     def _show_prompt_step(self):
         try:
             agent = agent_loader.get_agent(self.wizard_state["agent"])
-            prompt_text = agent_loader.load_prompt(agent)
+            prompt_text = agent_loader.load_prompt(
+                agent, base_template_path=self._effective_base_template_path(agent)
+            )
         except agent_loader.AgentConfigError as exc:
             self._show_error("Prompt unavailable", str(exc), back=self._show_agent_step)
             return
@@ -361,7 +383,7 @@ class MainWindow(ctk.CTk):
             project_dir = self.wizard_state["project_dir"]
             report = self.wizard_state["report"]
             agent = agent_loader.get_agent(self.wizard_state["agent"])
-            base_template_path = Path(agent.get("base_template_path", ""))
+            base_template_path = self._effective_base_template_path(agent)
 
             written = deploy_base_files(agent, base_template_path, project_dir, report)
             written += deploy_project_specific_files(
@@ -412,6 +434,12 @@ class MainWindow(ctk.CTk):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+    def _effective_base_template_path(self, agent: dict) -> Path:
+        """Return the user-configured base template path for an agent if set,
+        otherwise the agent config's default."""
+        configured = settings.get_base_template_path(agent.get("name", ""))
+        return Path(configured or agent.get("base_template_path", ""))
+
     def _resolve_project_dir(self) -> Path:
         """Clone the repo if a URL is given, else use the folder path directly."""
         folder = Path(self.wizard_state["folder_path"])

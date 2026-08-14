@@ -48,3 +48,25 @@ def set_base_template_path(agent_name: str, path: str) -> None:
     settings = load_settings()
     settings.setdefault("base_template_paths", {})[agent_name] = path
     save_settings(settings)
+
+
+def clear_base_template_path(agent_name: str) -> None:
+    """Remove a user-configured base template path for an agent."""
+    settings = load_settings()
+    settings.get("base_template_paths", {}).pop(agent_name, None)
+    save_settings(settings)
+
+
+def get_last_used() -> dict:
+    """Return the last-used folder/repo/agent values."""
+    return load_settings().get("last_used", {})
+
+
+def update_last_used(**kwargs) -> None:
+    """Persist one or more last-used values (folder_path, repo_url, agent).
+
+    Only the provided keys are updated; existing values are preserved.
+    """
+    settings = load_settings()
+    settings.setdefault("last_used", {}).update(kwargs)
+    save_settings(settings)

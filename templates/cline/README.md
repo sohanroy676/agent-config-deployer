@@ -13,10 +13,12 @@
     - `.clineignore` → project root
     - `.gitignore` → project root (merge with any existing one)
     - `memory-bank-template/*.md` → into a new `memory-bank/` folder, then fill in `projectBrief.md`
-2. Copy `tech-stack.md` and `architecture.md` from `project-specific-template/` into `memory-bank/` and fill them in for this specific project BEFORE starting to build features.
-3. Optional: copy `ROADMAP.md` from `project-specific-template/` into the project root and fill in the plan, or leave the blank template.
-4. Copy the `AGENTS.md` file into the project root, and fill in with project-specific content.
-5. Tell Cline: "Read all files in .clinerules and memory-bank, then confirm you understand the project setup" as your first message in a new project.
+2. Copy `project-specific-template/tech-stack.md` and `architecture.md` into `.clinerules/`, and fill them in for this specific project BEFORE starting to build features.
+3. Copy `project-specific-template/AGENTS.md`, `CHANGELOG.md`, and `ROADMAP.md` into the **project root** (not `.clinerules/`) and fill them in. `AGENTS.md` is a short, cross-tool file Cline reads automatically alongside `.clinerules/`. `CHANGELOG.md` starts with just an `[Unreleased]` header — it gets filled in via the `/commit` workflow, not by hand. `ROADMAP.md` is your unversioned, priority-grouped feature plan.
+4. Tell Cline: "Read all files in .clinerules, AGENTS.md, and memory-bank, then confirm you understand the project setup" as your first message in a new project.
+5. Copy `ci-template/.github/` (both `workflows/ci.yml` and `dependabot.yml`) into your project's `.github/` folder, then customize the install/lint/test commands in `ci.yml` to match `tech-stack.md`. Also enable GitHub's secret scanning manually in repo Settings → Code security and analysis (free, no file needed for that part).
+6. Copy `docs-adr-template/*.md` into a `docs/adr/` folder in your project — `0001-record-architecture-decisions.md` as your first real ADR, `adr-template.md` stays as the copyable template for future decisions.
+7. Copy `PRE-DEPLOY-CHECKLIST.md` into the project root — run through it before deploying anywhere real users can reach it.
 
 ## Resulting folder structure in each project
 
@@ -40,16 +42,25 @@ your-project/
 │   ├── systemPatterns.md
 │   ├── tech-stack.md          (filled in per project)
 │   └── architecture.md        (filled in per project)
+├── .github/
+│   ├── workflows/
+│   │   └── ci.yml           (customize commands in the CONFIG section)
+│   └── dependabot.yml       (weekly dependency update PRs)
+├── docs/
+│   └── adr/
+│       ├── adr-template.md  (copy for each new architecture decision)
+│       └── 0001-record-architecture-decisions.md
 ├── .clineignore
 ├── .gitignore
 ├── CHANGELOG.md             (regenerate via /commit, don't hand-edit)
 ├── ROADMAP.md               (optional — blank template deployed, fill in the plan)
+├── PRE-DEPLOY-CHECKLIST.md  (run through before deploying anywhere real)
 └── (your actual code)
 ```
 
 ## Daily usage
 
-- Start a session: "Read memory-bank and .clinerules, then let's continue."
+- Start a session: "Read memory-bank, .clinerules, and AGENTS.md, then let's continue."
 - Build a feature: "/new-feature — [describe the feature]"
 - Fix a bug: "/debug — [describe the bug]"
 - Commit manually anytime: "/commit"

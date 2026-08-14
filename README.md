@@ -11,6 +11,7 @@ Built with Python + CustomTkinter.
 - **Prompt step** — shows the agent's `prompt.md` template with a one-click copy, so you can generate project-specific content in Claude (or any AI chat).
 - **Per-file content pages** — one page per project-specific file with a description, auto-saved as you navigate (no Save button).
 - **Conflict resolution** — if target files/folders already exist, the app always asks you how to proceed (Overwrite / Skip / Merge) — it never decides for you.
+- **CI + ADR + checklist deployment** — deploys a configurable GitHub Actions CI workflow (`.github/`), Architecture Decision Record templates (`docs/adr/`), and a pre-deploy checklist (`PRE-DEPLOY-CHECKLIST.md`) alongside the base rules.
 - **Dark & light themes** — follows your system appearance, with a toggle in the header.
 - **Extensible agents** — adding a new coding agent (e.g. Claude Code) is just a new JSON config file; no app code changes needed.
 

@@ -106,6 +106,52 @@ def test_deploy_base_files_overwrite_existing(tmp_path):
     ) == "# security\n"
 
 
+def test_deploy_base_files_ci_adr_checklist(tmp_path):
+    """New base files (CI workflow, dependabot, ADR templates, checklist) deploy to correct locations."""
+    template = tmp_path / "template"
+    (template / "ci-template" / ".github" / "workflows").mkdir(parents=True)
+    (template / "ci-template" / ".github" / "workflows" / "ci.yml").write_text(
+        "name: CI\n", encoding="utf-8"
+    )
+    (template / "ci-template" / ".github" / "dependabot.yml").write_text(
+        "version: 2\n", encoding="utf-8"
+    )
+    (template / "docs-adr-template").mkdir(parents=True)
+    (template / "docs-adr-template" / "adr-template.md").write_text(
+        "# ADR template\n", encoding="utf-8"
+    )
+    (
+        template / "docs-adr-template" / "0001-record-architecture-decisions.md"
+    ).write_text("# ADR-0001\n", encoding="utf-8")
+    (template / "PRE-DEPLOY-CHECKLIST.md").write_text("# Checklist\n", encoding="utf-8")
+
+    config = {
+        "name": "Cline",
+        "base_template_path": str(template),
+        "structure": {
+            "base_files": {
+                "ci-template/.github/workflows/ci.yml": ".github/workflows/ci.yml",
+                "ci-template/.github/dependabot.yml": ".github/dependabot.yml",
+                "docs-adr-template/adr-template.md": "docs/adr/adr-template.md",
+                "docs-adr-template/0001-record-architecture-decisions.md": "docs/adr/0001-record-architecture-decisions.md",
+                "PRE-DEPLOY-CHECKLIST.md": "PRE-DEPLOY-CHECKLIST.md",
+            }
+        },
+    }
+    project = tmp_path / "project"
+    project.mkdir()
+    report = ConflictReport()
+
+    written = deploy_base_files(config, template, project, report)
+
+    assert (project / ".github" / "workflows" / "ci.yml").exists()
+    assert (project / ".github" / "dependabot.yml").exists()
+    assert (project / "docs" / "adr" / "adr-template.md").exists()
+    assert (project / "docs" / "adr" / "0001-record-architecture-decisions.md").exists()
+    assert (project / "PRE-DEPLOY-CHECKLIST.md").exists()
+    assert len(written) == 5
+
+
 def test_deploy_base_files_merge_gitignore(tmp_path):
     template = _make_template(tmp_path)
     project = tmp_path / "project"
