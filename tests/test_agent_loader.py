@@ -200,11 +200,137 @@ def test_real_agent_prompt_resolves():
 def test_real_ci_template_is_configurable():
     """The deployed ci.yml must keep its configurability markers so users can
     adapt it to their stack without rewriting the workflow."""
-    config = _load_agent_file(REPO_ROOT / "agents" / "cline.json")
-    template = REPO_ROOT / config["base_template_path"]
-    ci_path = template / "ci-template" / ".github" / "workflows" / "ci.yml"
-    assert ci_path.is_file(), "ci.yml template missing"
+    for path, config in _real_agent_configs():
+        template = REPO_ROOT / config["base_template_path"]
+        ci_path = template / "ci-template" / ".github" / "workflows" / "ci.yml"
+        assert ci_path.is_file(), f"{path.name}: ci.yml template missing"
 
-    content = ci_path.read_text(encoding="utf-8")
-    for marker in ("INSTALL_CMD", "LINT_CMD", "FORMAT_CMD", "TEST_CMD", "matrix"):
-        assert marker in content, f"ci.yml is missing configurability marker: {marker}"
+        content = ci_path.read_text(encoding="utf-8")
+        for marker in ("INSTALL_CMD", "LINT_CMD", "FORMAT_CMD", "TEST_CMD", "matrix"):
+            assert (
+                marker in content
+            ), f"{path.name}: ci.yml is missing configurability marker: {marker}"
+
+
+def test_real_agents_list_includes_cline_and_claude_code():
+    names = {agent["name"] for agent in list_agents()}
+    assert {"Cline", "Claude Code"} <= names
+
+
+def test_real_agent_paths_stay_inside_template_and_project():
+    """No `..` or absolute paths in base_files/project_specific_files: sources
+    must stay inside the template folder, destinations inside the project."""
+    for path, config in _real_agent_configs():
+        structure = config["structure"]
+        for section in ("base_files", "project_specific_files"):
+            for src, dst in structure.get(section, {}).items():
+                for rel in (src, dst):
+                    p = Path(rel)
+                    assert not p.is_absolute(), f"{path.name}: absolute path {rel}"
+                    assert ".." not in p.parts, f"{path.name}: '..' in path {rel}"
+
+
+# Files that must stay byte-identical between the Cline and Claude Code
+# templates (template-relative path in cline -> path in claude-code).
+_SHARED_TEMPLATE_FILES = {
+    **{
+        f".clinerules-base/{n}": f"rules/{n}"
+        for n in (
+            "01-security.md",
+            "02-commit-style.md",
+            "03-testing.md",
+            "04-code-quality-review.md",
+            "05-git-workflow.md",
+            "06-session-efficiency.md",
+        )
+    },
+    **{
+        f"memory-bank-template/{n}": f"memory-bank-template/{n}"
+        for n in (
+            "activeContext.md",
+            "progress.md",
+            "projectBrief.md",
+            "systemPatterns.md",
+        )
+    },
+    **{
+        f"project-specific-template/{n}": f"project-specific-template/{n}"
+        for n in ("CHANGELOG.md", "ROADMAP.md", "architecture.md", "tech-stack.md")
+    },
+    "ci-template/.github/workflows/ci.yml": "ci-template/.github/workflows/ci.yml",
+    "ci-template/.github/dependabot.yml": "ci-template/.github/dependabot.yml",
+    "docs-adr-template/adr-template.md": "docs-adr-template/adr-template.md",
+    ".gitignore": ".gitignore",
+}
+
+
+def test_shared_template_files_have_not_drifted():
+    cline = REPO_ROOT / "templates" / "cline"
+    claude = REPO_ROOT / "templates" / "claude-code"
+    for src, dst in _SHARED_TEMPLATE_FILES.items():
+        assert (cline / src).read_bytes() == (
+            claude / dst
+        ).read_bytes(), (
+            f"templates/claude-code/{dst} drifted from templates/cline/{src}"
+        )
+
+
+def _claude_code_config() -> dict:
+    return _load_agent_file(REPO_ROOT / "agents" / "claude_code.json")
+
+
+def test_claude_code_has_no_agents_md_or_cline_references():
+    config = _claude_code_config()
+    structure = config["structure"]
+    assert "AGENTS.md" not in structure["project_specific_files"]
+    template = REPO_ROOT / config["base_template_path"]
+    for f in template.rglob("*"):
+        if f.is_file() and f.name != "README.md":  # README is not deployed
+            assert (
+                "cline" not in f.read_text(encoding="utf-8").lower()
+            ), f"{f.relative_to(template)} mentions Cline"
+
+
+def test_claude_code_md_imports_resolve_to_deployed_files():
+    """Every @import in the deployed CLAUDE.md must name a file the agent
+    config actually deploys, and the auto-loaded rules must not be imported."""
+    import re
+
+    config = _claude_code_config()
+    structure = config["structure"]
+    deployed = set(structure["base_files"].values()) | set(
+        structure["project_specific_files"].values()
+    )
+    text = (REPO_ROOT / config["base_template_path"] / "CLAUDE.md").read_text(
+        encoding="utf-8"
+    )
+    imports = re.findall(r"^@(\S+)$", text, flags=re.MULTILINE)
+    assert imports, "CLAUDE.md template has no @imports"
+    for target in imports:
+        assert target in deployed, f"CLAUDE.md imports undeployed file: {target}"
+        assert not target.startswith(
+            ".claude/rules/"
+        ), f"{target} is auto-loaded; importing it would load it twice"
+
+
+def test_claude_code_commands_have_description_frontmatter():
+    config = _claude_code_config()
+    template = REPO_ROOT / config["base_template_path"]
+    commands = sorted((template / "commands").glob("*.md"))
+    assert {c.stem for c in commands} == {"commit", "debug", "new-feature"}
+    for cmd in commands:
+        lines = cmd.read_text(encoding="utf-8").splitlines()
+        assert lines[0] == "---", f"{cmd.name}: missing frontmatter"
+        end = lines.index("---", 1)
+        assert any(l.startswith("description:") for l in lines[1:end]), cmd.name
+
+
+def test_claude_code_settings_template_denies_secrets_and_asks_on_git():
+    import json
+
+    config = _claude_code_config()
+    settings_path = REPO_ROOT / config["base_template_path"] / "settings.json"
+    perms = json.loads(settings_path.read_text(encoding="utf-8"))["permissions"]
+    assert "Read(./.env)" in perms["deny"]
+    for cmd in ("git push", "git reset --hard", "git rebase"):
+        assert any(cmd in rule for rule in perms["ask"]), f"no ask rule for {cmd}"
