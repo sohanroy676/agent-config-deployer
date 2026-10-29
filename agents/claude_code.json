@@ -1,0 +1,44 @@
+{
+    "name": "Claude Code",
+    "version": "1.0.0",
+    "base_template_path": "templates/claude-code",
+    "structure": {
+        "base_files": {
+            "rules/01-security.md": ".claude/rules/01-security.md",
+            "rules/02-commit-style.md": ".claude/rules/02-commit-style.md",
+            "rules/03-testing.md": ".claude/rules/03-testing.md",
+            "rules/04-code-quality-review.md": ".claude/rules/04-code-quality-review.md",
+            "rules/05-git-workflow.md": ".claude/rules/05-git-workflow.md",
+            "rules/06-session-efficiency.md": ".claude/rules/06-session-efficiency.md",
+            "commands/commit.md": ".claude/commands/commit.md",
+            "commands/debug.md": ".claude/commands/debug.md",
+            "commands/new-feature.md": ".claude/commands/new-feature.md",
+            "settings.json": ".claude/settings.json",
+            "CLAUDE.md": "CLAUDE.md",
+            "memory-bank-template/activeContext.md": "memory-bank/activeContext.md",
+            "memory-bank-template/progress.md": "memory-bank/progress.md",
+            "memory-bank-template/projectBrief.md": "memory-bank/projectBrief.md",
+            "memory-bank-template/systemPatterns.md": "memory-bank/systemPatterns.md",
+            "project-specific-template/CHANGELOG.md": "CHANGELOG.md",
+            "project-specific-template/ROADMAP.md": "ROADMAP.md",
+            "ci-template/.github/workflows/ci.yml": ".github/workflows/ci.yml",
+            "ci-template/.github/dependabot.yml": ".github/dependabot.yml",
+            "docs-adr-template/adr-template.md": "docs/adr/adr-template.md",
+            "docs-adr-template/0001-record-architecture-decisions.md": "docs/adr/0001-record-architecture-decisions.md",
+            "PRE-DEPLOY-CHECKLIST.md": "PRE-DEPLOY-CHECKLIST.md",
+            ".gitignore": ".gitignore"
+        },
+        "project_specific_files": {
+            "tech-stack.md": "memory-bank/tech-stack.md",
+            "architecture.md": "memory-bank/architecture.md",
+            "projectBrief.md": "memory-bank/projectBrief.md",
+            "ROADMAP.md": "ROADMAP.md"
+        },
+        "file_descriptions": {
+            "tech-stack.md": "Languages, frameworks, test/lint/build commands for this project.",
+            "architecture.md": "Folder structure, data flow, and key module responsibilities.",
+            "projectBrief.md": "What the project is, its core goal, and what's out of scope.",
+            "ROADMAP.md": "Optional: forward-looking plan (Now/Next/Later). Leave blank to deploy the blank template."
+        }
+    }
+}

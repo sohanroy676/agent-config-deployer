@@ -70,6 +70,18 @@ def test_main_window_wizard_behaviors(monkeypatch, tmp_path):
         assert settings.get_base_template_path("Cline") == ""
         assert app._effective_base_template_path(agent) == Path("templates/cline")
 
+        # --- Claude Code agent: listed, and its template override works ---
+        app._show_agent_step()
+        assert {"Cline", "Claude Code"} <= {a["name"] for a in app.current_step.agents}
+        claude = {"name": "Claude Code", "base_template_path": "templates/claude-code"}
+        app._on_agent({"agent": "Claude Code", "template_path": "C:/my/claude"})
+        assert settings.get_base_template_path("Claude Code") == "C:/my/claude"
+        assert app._effective_base_template_path(claude) == Path("C:/my/claude")
+        app._on_agent({"agent": "Claude Code", "template_path": ""})
+        assert app._effective_base_template_path(claude) == Path(
+            "templates/claude-code"
+        )
+
         # --- Content persists across back-navigation ----------------------
         app.wizard_state["agent"] = "Cline"
         app._show_content_step()

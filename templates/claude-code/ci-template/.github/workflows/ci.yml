@@ -1,0 +1,69 @@
+# Generic CI pipeline. Runs on every push and PR to main, and can be triggered
+# manually from the Actions tab (workflow_dispatch).
+#
+# HOW TO CONFIGURE FOR YOUR PROJECT
+# ---------------------------------
+# Everything you normally need to change lives in the "CONFIG" section below:
+#   - os / python-version: edit the matrix (add "windows-latest", "3.12", etc.)
+#   - INSTALL_CMD / LINT_CMD / FORMAT_CMD / TEST_CMD: set to your project's
+#     commands from tech-stack.md (npm, cargo, pytest, etc.)
+#   - RUN_SECRET_SCAN: set to "true" to enable the gitleaks secret scan step
+#
+# HOW TO EXTEND
+# -------------
+# Add extra steps inside the job below (e.g. build, type-check, deploy).
+# Keep the trigger/job/checkout structure as-is.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    # --- CONFIG: OS + Python versions (add/remove entries as needed) ---
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11"]
+
+    runs-on: ${{ matrix.os }}
+
+    # --- CONFIG: commands for your stack (from tech-stack.md) ---
+    env:
+      INSTALL_CMD: pip install -r requirements.txt --break-system-packages
+      LINT_CMD: ruff check .
+      FORMAT_CMD: black --check .
+      TEST_CMD: pytest
+      RUN_SECRET_SCAN: "false"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: ${{ env.INSTALL_CMD }}
+
+      - name: Lint
+        run: ${{ env.LINT_CMD }}
+
+      - name: Format check
+        run: ${{ env.FORMAT_CMD }}
+
+      - name: Run tests
+        run: ${{ env.TEST_CMD }}
+
+      # Belt-and-suspenders with GitHub's built-in secret scanning.
+      # Enable by setting RUN_SECRET_SCAN to "true" above.
+      - name: Secret scan
+        if: env.RUN_SECRET_SCAN == 'true'
+        uses: gitleaks/gitleaks-action@v2
