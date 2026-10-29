@@ -11,8 +11,6 @@
 
 ## Next
 
-- Wire `config/settings.py` into the UI so the app remembers last-used folder/repo/agent and per-agent base template paths
-- Add Claude Code agent config (`agents/claude_code.json`) as a second agent
 - PyInstaller packaging to produce a standalone `.exe`
 
 ## Later / ideas

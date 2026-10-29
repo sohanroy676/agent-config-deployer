@@ -1,6 +1,6 @@
 # Agent Config Deployer
 
-A Windows desktop app that deploys coding-agent configuration templates (starting with **Cline**) into a project folder — either an existing local folder or a freshly cloned public GitHub repo. It places base rule/workflow files and your project-specific files (`tech-stack.md`, `architecture.md`, `projectBrief.md`, `AGENTS.md`) into the correct structure automatically, so every project starts with a consistent, agent-ready setup.
+A Windows desktop app that deploys coding-agent configuration templates (**Cline** and **Claude Code**) into a project folder — either an existing local folder or a freshly cloned public GitHub repo. It places base rule/workflow files and your project-specific files (`tech-stack.md`, `architecture.md`, `projectBrief.md`, plus `AGENTS.md` for Cline) into the correct structure automatically, so every project starts with a consistent, agent-ready setup.
 
 Built with Python + CustomTkinter.
 
@@ -13,7 +13,7 @@ Built with Python + CustomTkinter.
 - **Conflict resolution** — if target files/folders already exist, the app always asks you how to proceed (Overwrite / Skip / Merge) — it never decides for you.
 - **CI + ADR + checklist deployment** — deploys a configurable GitHub Actions CI workflow (`.github/`), Architecture Decision Record templates (`docs/adr/`), and a pre-deploy checklist (`PRE-DEPLOY-CHECKLIST.md`) alongside the base rules.
 - **Dark & light themes** — follows your system appearance, with a toggle in the header.
-- **Extensible agents** — adding a new coding agent (e.g. Claude Code) is just a new JSON config file; no app code changes needed.
+- **Extensible agents** — adding a new coding agent is just a new JSON config file; no app code changes needed.
 
 ## Requirements
 
@@ -60,11 +60,13 @@ agent-config-deployer/
 │   ├── conflict_resolver.py # pure conflict decision logic (never writes files)
 │   └── file_deployer.py     # the ONLY module that writes into the target project
 ├── agents/
-│   └── cline.json           # one config per coding agent
+│   ├── cline.json           # one config per coding agent
+│   └── claude_code.json
 ├── config/
-│   └── settings.py          # user settings persistence (not yet wired into the UI)
+│   └── settings.py          # user settings persistence (last-used values, per-agent template paths)
 ├── templates/
-│   └── cline/               # base template files deployed into projects
+│   ├── cline/               # base template files deployed into projects
+│   └── claude-code/
 ├── tests/                   # pytest suite
 └── requirements.txt
 ```
@@ -75,9 +77,9 @@ agent-config-deployer/
 
    ```json
    {
-     "name": "Claude Code",
+     "name": "My Agent",
      "version": "1.0.0",
-     "base_template_path": "templates/claude-code-templates",
+     "base_template_path": "templates/my-agent",
      "structure": {
        "base_files": { "template-relative-source": "project-relative-destination" },
        "project_specific_files": { "filename": "project-relative-destination" },
@@ -104,6 +106,6 @@ black .
 
 ## Roadmap
 
-- [ ] Remember last-used folder/repo/agent and per-agent base template paths (`config/settings.py`)
-- [ ] Claude Code agent config as a second agent
+- [x] Remember last-used folder/repo/agent and per-agent base template paths (`config/settings.py`)
+- [x] Claude Code agent config as a second agent
 - [ ] PyInstaller packaging for a standalone `.exe`

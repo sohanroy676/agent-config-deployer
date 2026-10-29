@@ -20,7 +20,7 @@ Session complete. Settings persistence is done on `feature/settings-persistence`
 
 ## Next step
 
-Add a Claude Code agent config (`agents/claude_code.json`) as a second agent — the settings wiring (last-used values + per-agent template paths) that this feature enables is already in place. After that: PyInstaller packaging, CI for this repo, and template variable substitution + final preview.
+Claude Code agent is built on `feature/claude-code-agent` (79 tests pass, awaiting review/merge). After that: PyInstaller packaging, CI for this repo, and template variable substitution + final preview.
 
 ## Roadmap expansion
 
