@@ -1,5 +1,7 @@
 # Agent Config Deployer
 
+[![CI](https://github.com/sohanroy676/agent-config-deployer/actions/workflows/ci.yml/badge.svg)](https://github.com/sohanroy676/agent-config-deployer/actions/workflows/ci.yml)
+
 A Windows desktop app that deploys coding-agent configuration templates (**Cline** and **Claude Code**) into a project folder — either an existing local folder or a freshly cloned public GitHub repo. It places base rule/workflow files and your project-specific files (`tech-stack.md`, `architecture.md`, `projectBrief.md`, plus `AGENTS.md` for Cline) into the correct structure automatically, so every project starts with a consistent, agent-ready setup.
 
 Built with Python + CustomTkinter.
@@ -103,6 +105,8 @@ ruff check .
 # Format
 black .
 ```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, format check, tests and a secret scan on every push and PR to `main` (Windows, Python 3.11 and 3.14). `black` and `ruff` are pinned in `requirements.txt` so CI and local formatting agree.
 
 ## Roadmap
 
