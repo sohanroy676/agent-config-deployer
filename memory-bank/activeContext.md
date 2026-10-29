@@ -29,3 +29,7 @@ The ROADMAP was expanded with a full feature backlog across agent/template expan
 ## Claude Code support (2026-10-29)
 
 This repo's own dev setup now works with Claude Code too: `CLAUDE.md` imports the Cline rules/memory-bank, `.claude/commands/` wraps the workflows, `.claude/settings.json` holds permissions. The deployable side is still Cline-only: next is `agents/claude_code.json` + `templates/claude-code/` (CLAUDE.md template with @-imports, `.claude/commands`, `.claude/settings.json`), then verify the outer setup in a live Claude Code session.
+
+## CI (2026-10-29)
+
+CI for this repo is on `feature/repo-ci`; the roadmap is now a single root `ROADMAP.md`. Next: PyInstaller packaging, then template variables + file-tree preview.
