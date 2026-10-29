@@ -25,3 +25,7 @@ Add a Claude Code agent config (`agents/claude_code.json`) as a second agent —
 ## Roadmap expansion
 
 The ROADMAP was expanded with a full feature backlog across agent/template expansion, git/repo features, settings/UX polish, deployment/content, CI/CD templates, security/quality, integration/extensibility, and project self-improvement. Near-term priorities (Next): Claude Code agent, PyInstaller packaging, CI for this repo, and template variable substitution + final preview.
+
+## Claude Code support (2026-10-29)
+
+This repo's own dev setup now works with Claude Code too: `CLAUDE.md` imports the Cline rules/memory-bank, `.claude/commands/` wraps the workflows, `.claude/settings.json` holds permissions. The deployable side is still Cline-only: next is `agents/claude_code.json` + `templates/claude-code/` (CLAUDE.md template with @-imports, `.claude/commands`, `.claude/settings.json`), then verify the outer setup in a live Claude Code session.
